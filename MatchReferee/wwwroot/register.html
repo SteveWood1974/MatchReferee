@@ -25,29 +25,24 @@
         </section>
 
         <!-- Main Section -->
-
         <section id="about" class="py-5">
             <div class="d-flex justify-content-center align-items-center">
                 <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
                     <h2 class="text-center mb-4">Register</h2>
-                    <div>
-                        <input type="email" id="registeremail" placeholder="Email" class="form-control mb-3" required>
-                        <button onclick="Register()" class="btn btn-success w-100">Register</button>
-                        <p id="error" class="alert alert-danger mt-3 d-none" role="alert"></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section id="about" class="py-5">
-            <div class="d-flex justify-content-center align-items-center">
-                <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
-                    <h2 class="text-center mb-4">Login</h2>
-                    <div>
+                    <form id="registerForm">
+                        <select id="userType" class="form-select mb-3" required>
+                            <option value="">Select User Type</option>
+                            <option value="referee">Referee (Free)</option>
+                            <option value="coach">Coach</option>
+                            <option value="club">Club (Paid)</option>
+                        </select>
                         <input type="email" id="email" placeholder="Email" class="form-control mb-3" required>
                         <input type="password" id="password" placeholder="Password" class="form-control mb-3" required>
-                        <button onclick="login()" class="btn btn-success w-100">Login</button>
+                        <button type="button" onclick="registerUser()" class="btn btn-success w-100">Register</button>
                         <p id="error" class="alert alert-danger mt-3 d-none" role="alert"></p>
-                    </div>
+                    </form>
+                    <hr>
+                    <button onclick="registerWithGoogle()" class="btn btn-outline-primary w-100">Register with Google</button>
                 </div>
             </div>
         </section>
@@ -126,6 +121,63 @@
                 window.location.href = 'landing.html';
             }
         });
+
+        window.registerUser = async function () {
+            const type = document.getElementById('userType').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('error');
+
+            if (!type) {
+                errorElement.textContent = 'Please select a user type.';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                await user.sendEmailVerification(); // Verify email
+
+                // Call backend API to create profile
+                const idToken = await user.getIdToken();
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${idToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: user.uid, type: type, email: email })
+                });
+
+                if (!response.ok) throw new Error('Profile creation failed');
+
+                if (type === 'referee') {
+                    window.location.href = '/landing.html'; // Immediate access
+                } else if (type === 'coach') {
+                    window.location.href = '/coach-pending.html'; // New page: "Awaiting club authorization"
+                } else if (type === 'club') {
+                    window.location.href = '/payment.html'; // Handle payment
+                }
+            } catch (error) {
+                errorElement.textContent = error.message;
+                errorElement.classList.remove('d-none');
+            }
+        };
+
+        window.registerWithGoogle = async function () {
+            const provider = new GoogleAuthProvider();
+            try {
+                const userCredential = await signInWithPopup(auth, provider);
+                const user = userCredential.user;
+                // If new user, prompt for type (e.g., via modal), then proceed as above
+                if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+                    const type = prompt('Select type: referee, coach, or club'); // Or use a modal
+                    // Call API to set profile, etc.
+                }
+                // Redirect based on type/profile
+            } catch (error) {
+                // Handle error
+            }
+        };
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

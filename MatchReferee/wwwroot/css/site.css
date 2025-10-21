@@ -1,0 +1,86 @@
+﻿/* Ensure body is a flex container that fills viewport height */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+/* Main content takes up remaining space */
+main {
+    flex: 1 0 auto;
+}
+/* Footer stays at bottom */
+footer {
+    flex-shrink: 0;
+}
+nav {
+    border-bottom: 2px solid #6bb50d;
+}
+.sansation-light {
+    font-family: "Sansation", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.sansation-regular {
+    font-family: "Sansation", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.sansation-bold {
+    font-family: "Sansation", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.sansation-light-italic {
+    font-family: "Sansation", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.sansation-regular-italic {
+    font-family: "Sansation", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.sansation-bold-italic {
+    font-family: "Sansation", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.brand-green {
+    background-color: #396107;
+}
+.brand-yellow {
+    background-color: #c9c14a;
+}
+.brand-blue {
+    background-color: #075861;
+}
+.brand-red {
+    background-color: #832e1f;
+}
+.bg-football {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,1)), url('/img/pitch.jpg');
+    background-size: cover;
+    background-position: center center;
+    min-height: 300px;
+    padding: 15px;
+}
+
+.navbar-brand img {
+    height: 40px;
+}
+
+.btn-green {
+    background-color: #396107;
+    border-color: #152303;
+}
+
+    .btn-green:hover {
+        background-color: #57930c;
+        border-color: #152303;
+    }

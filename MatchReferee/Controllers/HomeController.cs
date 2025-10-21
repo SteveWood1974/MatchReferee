@@ -5,16 +5,16 @@ using Microsoft.Extensions.Configuration;
 
 namespace MatchReferee.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/landing")]
     [ApiController]
-    public class HomeController : ControllerBase
+    public class LandingController : ControllerBase
     {
         [HttpGet("landing")]
         [Authorize]
         public IActionResult GetLandingPage()
         {
-            var userId = User.FindFirst("user_id")?.Value;
-            return Ok(new { Message = $"Welcome to MatchReferee, {userId}!" });
+            var uid = User.FindFirst("sub")?.Value;
+            return Ok(new { Message = $"Welcome to MatchReferee, {uid}!" });
         }
     }
 }
