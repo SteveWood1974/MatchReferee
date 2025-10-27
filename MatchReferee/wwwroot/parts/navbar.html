@@ -1,21 +1,18 @@
 ﻿<div class="container">
     <a class="navbar-brand text-white sansation-bold" href="/">
-        <img src="/img/favicon.png" alt="Match Referee Logo" class="me-2">
+        <img src="/img/favicon.png" alt="Match Referee Logo" class="me-2" width="30">
         Match Referee
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-                <a class="nav-link text-white" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="/about">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="/login">Login</a>
+        <ul class="navbar-nav ms-auto align-items-center">
+            <li id="home" class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
+            <li id="about" class="nav-item"><a class="nav-link text-white" href="/about">About</a></li>
+            <li id="signin" class="nav-item"><a class="nav-link text-white" href="/signin">Sign In</a></li>
+            <li id="profile" class="nav-item d-none">
+                <a class="nav-link text-white" href="/profile">Hi, <span id="userName"></span></a>
             </li>
         </ul>
     </div>

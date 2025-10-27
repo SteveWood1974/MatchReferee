@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Match Referee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/site.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100 sansation-regular">
+    <main class="flex-grow-1">
+        <!-- Navigation -->
+        <nav id="navbar" class="navbar navbar-expand-lg brand-green text-white sticky-top"></nav>
+
+        <!-- Profile Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card shadow">
+                            <div class="card-header bg-success text-white">
+                                <h3 class="mb-0">My Profile</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Name:</strong> <span id="displayName">Loading...</span></p>
+                                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                                <p><strong>Role:</strong> <span id="role">Loading...</span></p>
+                                <p><strong>Email Verified:</strong> <span id="verified" class="badge bg-success">Yes</span></p>
+                                <hr>
+                                <button onclick="window.signOut()" class="btn btn-outline-danger">Sign Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p>© 2025 Match Referee. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Load navbar -->
+    <script>
+        fetch('/parts/navbar.html')
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('navbar').innerHTML = html;
+                trySetupNavbar();
+            });
+    </script>
+
+    <!-- Global navbar helpers -->
+    <script>
+        function trySetupNavbar() {
+            if (setupNavbarAuth()) return;
+            setTimeout(trySetupNavbar, 100);
+        }
+        window.addEventListener('pageshow', trySetupNavbar);
+    </script>
+
+    <!-- Firebase + Profile Logic -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        let auth;
+
+        async function init() {
+            const resp = await fetch('/api/config/firebase');
+            const config = await resp.json();
+            const app = initializeApp(config);
+            auth = getAuth(app);
+
+            window.firebaseAuth = auth;
+            window.dispatchEvent(new Event('firebaseReady'));
+
+            onAuthStateChanged(auth, user => {
+                if (!user) {
+                    location.href = '/signin';
+                    return;
+                }
+
+                document.getElementById('displayName').textContent = user.displayName || 'Not set';
+                document.getElementById('email').textContent = user.email;
+                document.getElementById('verified').textContent = user.emailVerified ? 'Yes' : 'No';
+                document.getElementById('verified').className = user.emailVerified ? 'badge bg-success' : 'badge bg-danger';
+
+                // Fetch role from backend
+                user.getIdToken()
+                    .then(idToken => {
+                        return fetch('/api/auth/profile', {
+                            headers: { 'Authorization': `Bearer ${idToken}` }
+                        });
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to load profile: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('role').textContent = data.Role || 'Unknown';
+                    })
+                    .catch(error => {
+                        console.error('Profile fetch error:', error);
+                        document.getElementById('role').textContent = 'Error';
+                    });
+            });
+        }
+
+        init();
+
+        function setupNavbarAuth() {
+            if (!window.firebaseAuth) return false;
+            const auth = window.firebaseAuth;
+            const signin = document.getElementById('signin');
+            const profile = document.getElementById('profile');
+            const name = document.getElementById('userName');
+            if (!signin || !profile || !name) return false;
+
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    profile.classList.remove('d-none');
+                    signin.classList.add('d-none');
+                    name.textContent = user.displayName || user.email.split('@')[0];
+                } else {
+                    signin.classList.remove('d-none');
+                    profile.classList.add('d-none');
+                }
+            });
+
+            window.signOut = () => signOut(auth).then(() => location.href = '/');
+            return true;
+        }
+
+        window.setupNavbarAuth = setupNavbarAuth;
+        window.addEventListener('firebaseReady', trySetupNavbar);
+    </script>
+</body>
+</html>

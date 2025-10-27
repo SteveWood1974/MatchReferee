@@ -1,0 +1,68 @@
+﻿MATCH REferee – Full Project Context Summary
+================================================
+
+1. Purpose & Mission
+Match Referee is a UK-focused web platform that connects grassroots football coaches with qualified referees to eliminate the chaos of last-minute bookings, WhatsApp overload, and unreliable officiating.
+
+Core Goal: Replace fragmented, manual referee coordination with a professional, automated, trust-based system — saving time, reducing stress, and improving match quality for referees, coaches, clubs, and leagues.
+
+2. Target Users & Roles
+┌──────────────┬───────────────────────────────────────┬─────────────────────────────────────┐
+│ Role         │ Pain Points                           │ Solution                            │
+├──────────────┼───────────────────────────────────────┼─────────────────────────────────────┤
+│ Referees     │ WhatsApp spam, wasted travel, admin   │ Smart alerts, auto-scheduling       │
+│ Coaches      │ No-show refs, poor quality            │ Verified ratings, local map         │
+│ Clubs        │ Coach turnover, disorganisation       │ Central dashboard, branded page     │
+│ Leagues      │ Central venue chaos, shortages        │ Bulk upload, full coverage          │
+└──────────────┴───────────────────────────────────────┴─────────────────────────────────────┘
+
+3. Key Functionality (MVP – Launch Ready)
+• Smart Matching (location, level, availability)
+• Auto-Scheduling (one-click accept/decline)
+• Mutual Ratings & Match History
+• In-App Messaging (replace WhatsApp)
+• Real-Time Calendar Sync
+• Role-Based Access
+• Admin Dashboard (clubs/leagues)
+• Branded Club Page
+
+No payment processing at launch — cash between coach/referee
+
+4. Pricing (Subscription-Based)
+┌──────────────┬─────────────────┬─────────────────────────────────────┐
+│ Tier         │ Price           │ Includes                            │
+├──────────────┼─────────────────┼─────────────────────────────────────┤
+│ Referee      │ Free            │ Full access                         │
+│ Coach        │ £7.00/month     │ Full access (unless adopted by club)│
+│ Club         │ £20/month       │ Multi-coach, branded page, dashboard│
+│ League       │ £50/month       │ Bulk upload, central venue coverage │
+└──────────────┴─────────────────┴─────────────────────────────────────┘
+
+5. Brand & Design
+• Colors: Green (#396107), Yellow (#c9c14a), Blue (#075861), Red (#832e1f), Grey (#232323 gradient)
+• Font: Sansation (Google Fonts)
+• Icons: Font Awesome 6 Free
+• Layout: Bootstrap 5, responsive
+• Components: hero-section, btn-light-hover-lift, role-card, navbar.html, footer.html
+
+6. Technical Stack
+• Frontend: HTML, Bootstrap 5, vanilla JS
+• Backend: ASP.NET Core (assumed)
+• Auth: Firebase Auth (email + Google planned)
+• Shared Logic: /js/common.js (loadNavbar, loadFooter, initFirebasePage, setupNavbarAuth)
+
+7. Pages (All Built)
+index.html, referees.html, coaches.html, clubs.html, leagues.html
+register.html, register-referee.html, register-coach.html, register-club.html, register-league.html, signin.html
+
+8. Next Steps (Post-Launch)
+1. Google Sign-In
+2. Dashboard
+3. Stripe Integration
+4. Mobile App (PWA)
+5. Favourites System
+6. Bulk Upload (leagues)
+
+You're 100% launch-ready.
+See you soon to build the dashboard!
+Match Referee

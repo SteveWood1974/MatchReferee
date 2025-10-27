@@ -35,14 +35,14 @@
         // Check auth state
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = 'login.html';
+                window.location.href = '/signin';
             }
         });
 
         // Sign out function
         window.signOut = function() {
             signOut(auth).then(() => {
-                window.location.href = 'index.html';
+                window.location.href = '/';
             }).catch((error) => {
                 console.error('Sign out error:', error);
             });

@@ -1,4 +1,11 @@
-﻿/* Ensure body is a flex container that fills viewport height */
+﻿/* Increase base font size globally */
+:root {
+    font-size: 1.1rem; /* 17.6px (default is 16px) */
+}
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+
+/* Ensure body is a flex container that fills viewport height */
 body {
     display: flex;
     flex-direction: column;
@@ -12,9 +19,11 @@ main {
 footer {
     flex-shrink: 0;
 }
+
 nav {
     border-bottom: 2px solid #6bb50d;
 }
+
 .sansation-light {
     font-family: "Sansation", sans-serif;
     font-weight: 300;
@@ -51,18 +60,169 @@ nav {
     font-style: italic;
 }
 
+.brand-grey {
+    background: #444444; /* Fallback for old browsers */
+    background: linear-gradient(to bottom, #222222 0%, #000000 100%);
+    background: -webkit-linear-gradient(top, #222222 0%, #000000 100%);
+    background: -moz-linear-gradient(top, #222222 0%, #000000 100%);
+    background: -o-linear-gradient(top, #222222 0%, #000000 100%);
+    background: -ms-linear-gradient(top, #222222 0%, #000000 100%);
+}
+
 .brand-green {
     background-color: #396107;
 }
+
 .brand-yellow {
     background-color: #c9c14a;
 }
+
 .brand-blue {
     background-color: #075861;
 }
+
 .brand-red {
     background-color: #832e1f;
 }
+/* COMPLEMENTARY - PURPLE */
+.brand-purple {
+    background-color: #9c6bc0;
+    color: white !important;
+}
+
+    .brand-purple:hover {
+        background-color: #8a5aab;
+        color: white !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+/* CONTRASTING - ORANGE */
+.brand-orange {
+    background-color: #ff8c42;
+    color: white !important;
+}
+
+    .brand-orange:hover {
+        background-color: #ff7722;
+        color: white !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+/* HOVER STATES FOR BRAND BUTTONS */
+.btn.brand-green:hover {
+    background-color: #4a7a0c !important; /* Lighter green */
+    color: white !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+}
+
+.btn.brand-yellow:hover {
+    background-color: #d6d06b !important; /* Lighter yellow */
+    color: #333 !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+}
+
+.btn.brand-blue:hover {
+    background-color: #0a6f7a !important; /* Lighter blue */
+    color: white !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+}
+
+.btn.brand-red:hover {
+    background-color: #a03a2b; /* Lighter red */
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* PALE COLORS - BLACK TEXT */
+.brand-green-pale {
+    background-color: #a8e06a;
+    color: #000 !important;
+}
+
+    .brand-green-pale:hover {
+        background-color: #94d651;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+.brand-yellow-pale {
+    background-color: #f0e68c;
+    color: #000 !important;
+}
+
+    .brand-yellow-pale:hover {
+        background-color: #e6dc6e;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+.brand-blue-pale {
+    background-color: #87cefa;
+    color: #000 !important;
+}
+
+    .brand-blue-pale:hover {
+        background-color: #6bc0f7;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+.brand-red-pale {
+    background-color: #ff9999;
+    color: #000 !important;
+}
+
+    .brand-red-pale:hover {
+        background-color: #ff7f7f;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+/* PALE VERSIONS */
+.brand-purple-pale {
+    background-color: #e0d9f0;
+    color: #000 !important;
+}
+
+    .brand-purple-pale:hover {
+        background-color: #d1c7e6;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+.brand-orange-pale {
+    background-color: #ffe0cc;
+    color: #000 !important;
+}
+
+    .brand-orange-pale:hover {
+        background-color: #ffd1b3;
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn-light:hover {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
 .bg-football {
     background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,1)), url('/img/pitch.jpg');
     background-size: cover;
@@ -84,3 +244,43 @@ nav {
         background-color: #57930c;
         border-color: #152303;
     }
+
+/* Equal-width buttons */
+.flex-equal {
+    flex: 1 1 0; /* Grow, shrink, equal base */
+    min-width: 180px; /* Minimum width */
+    max-width: 300px; /* Optional: cap width */
+}
+
+/* Stack on mobile */
+@media (max-width: 576px) {
+    .flex-equal {
+        min-width: 100%;
+    }
+}
+/* Fixed-size image container with cover */
+.bg-cover {
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 200px; /* Fixed height */
+}
+
+/* Card hover effect */
+.role-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .role-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+/* HERO SECTION - CONSISTENT & COMPACT */
+.hero-section {
+    min-height: 30px;
+    padding-top: 3rem;
+    padding-bottom: 4rem; /* Extra bottom padding for spacing */
+    display: flex;
+    align-items: center;
+}

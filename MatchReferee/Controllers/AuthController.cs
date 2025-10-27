@@ -1,11 +1,13 @@
-﻿using FirebaseAdmin.Auth;
-using Firebase.Database;
-using Firebase.Database.Query;
+﻿// Controllers/AuthController.cs
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 using MatchReferee.Models;
-using Microsoft.AspNetCore.Authorization;
+using MatchReferee.Services;          // <-- FirebaseService lives here
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MatchReferee.Controllers
 {
@@ -13,147 +15,103 @@ namespace MatchReferee.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly FirebaseClient _firebase;
+        private readonly FirebaseService _firebaseService;
 
-        public AuthController()
+        // DI – FirebaseService is registered as a singleton in Program.cs
+        public AuthController(FirebaseService firebaseService)
         {
-            _firebase = new FirebaseClient("https://matchreferee-a9cd9-default-rtdb.firebaseio.com/");
+            _firebaseService = firebaseService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                // Verify Firebase token
+                // 1. Verify Firebase ID token
                 var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(request.IdToken);
                 var uid = decodedToken.Uid;
 
-                // Check if user already exists in Realtime DB
-                var existingUser = await _firebase
-                    .Child("users")
-                    .Child(uid)
-                    .OnceSingleAsync<UserProfile>();
-
-                if (existingUser != null)
+                // 2. Check if user already exists (via service)
+                var existing = await _firebaseService.GetUserAsync(uid);
+                if (existing != null)
                     return BadRequest("User already exists");
 
-                // Create new user profile
+                // 3. Convert Role string → enum
+                var role = request.Role.ToLower() switch
+                {
+                    "referee" => UserRole.Referee,
+                    "coach" => UserRole.Coach,
+                    "club" => UserRole.Club,
+                    _ => throw new BadHttpRequestException("Invalid role. Must be 'Referee', 'Coach', or 'Club'.")
+                };
+
+                // 4. Build UserProfile
                 var userProfile = new UserProfile
                 {
                     FirebaseUid = uid,
                     Name = request.Name,
                     Address = request.Address,
                     AffiliationNumber = request.AffiliationNumber,
-                    Role = request.Role,
+                    Role = role,
                     SubscriptionActive = false,
-                    MaxLogins = request.Role == UserRole.Club ? 0 : null
+                    MaxLogins = role == UserRole.Club ? 0 : null
                 };
 
-                // Save to Firebase Realtime DB
-                await _firebase
-                    .Child("users")
-                    .Child(uid)
-                    .PutAsync(userProfile);
+                // 5. Save to Realtime DB (via FirebaseService – REST)
+                await _firebaseService.CreateOrUpdateUserAsync(userProfile);
 
-                // Set custom claims
+                // 6. Set custom claims
                 var claims = new Dictionary<string, object>
                 {
-                    { "role", request.Role.ToString().ToLower() }
+                    { "role", request.Role.ToLower() }
                 };
 
-                if (request.Role == UserRole.Coach)
-                    claims["status"] = "pending";
-                else if (request.Role == UserRole.Club)
-                    claims["status"] = "payment_pending";
-                else
+                if (role == UserRole.Coach)
+                {
+                    claims["status"] = "payment_pending";  // Coach must pay
+                }
+                else if (role == UserRole.Club)
+                {
+                    claims["status"] = "payment_pending";  // Club pays later
+                }
+                else // Referee
+                {
                     claims["status"] = "active";
+                    userProfile.SubscriptionActive = true;
+                }
 
                 await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(uid, claims);
 
-                return Ok(new { Message = "User registered successfully", Role = request.Role });
+                return Ok(new { Message = "User registered successfully" });
+            }
+            catch (FirebaseAuthException ex)
+            {
+                return BadRequest($"Firebase auth error: {ex.Message}");
+            }
+            catch (BadHttpRequestException)
+            {
+                return BadRequest("Invalid role");
             }
             catch (Exception ex)
             {
-                return BadRequest($"Registration failed: {ex.Message}");
+                return StatusCode(500, $"Internal error: {ex.Message}");
             }
         }
 
-        [HttpPost("authorize-coach")]
-        [Authorize]
-        public async Task<IActionResult> AuthorizeCoach([FromBody] AuthorizeRequest request)
+        // -----------------------------------------------------------------
+        // REQUEST MODEL
+        // -----------------------------------------------------------------
+        public class RegisterRequest
         {
-            var uid = User.FindFirst("sub")?.Value;
-            if (string.IsNullOrEmpty(uid)) return Unauthorized();
-
-            // Get club profile
-            var club = await _firebase
-                .Child("users")
-                .Child(uid)
-                .OnceSingleAsync<UserProfile>();
-
-            if (club == null || club.Role != UserRole.Club || !club.SubscriptionActive)
-                return Unauthorized();
-
-            // Count current authorized coaches
-            var authorizedEmails = await _firebase
-                .Child("authorized_emails")
-                .OrderBy("clubUid")
-                .EqualTo(uid)
-                .OnceAsync<Dictionary<string, object>>();
-
-            if (authorizedEmails.Count >= (club.MaxLogins ?? 0))
-                return BadRequest("Max logins reached");
-
-            // Add new authorized email
-            var emailKey = request.Email.ToLower().Replace(".", "_").Replace("@", "_");
-            await _firebase
-                .Child("authorized_emails")
-                .Child(emailKey)
-                .PutAsync(new
-                {
-                    clubUid = uid,
-                    email = request.Email.ToLower(),
-                    addedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                });
-
-            // Update coach status if they exist
-            try
-            {
-                var firebaseUser = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(request.Email);
-                var coach = await _firebase
-                    .Child("users")
-                    .Child(firebaseUser.Uid)
-                    .OnceSingleAsync<UserProfile>();
-
-                if (coach != null && coach.Role == UserRole.Coach)
-                {
-                    await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(
-                        firebaseUser.Uid,
-                        new Dictionary<string, object> { { "status", "active" } });
-                }
-            }
-            catch (FirebaseAuthException)
-            {
-                // Coach not signed up yet — that's fine
-            }
-
-            return Ok(new { Message = "Coach authorized successfully" });
+            public required string IdToken { get; set; }
+            public required string Name { get; set; }
+            public required string Address { get; set; }
+            public string? AffiliationNumber { get; set; }
+            public required string Role { get; set; }
         }
-    }
-
-    // === REQUEST MODELS ===
-    public class RegisterRequest
-    {
-        public required string IdToken { get; set; }
-        public string? Name { get; set; }
-        public string? Address { get; set; }
-        public string? AffiliationNumber { get; set; }
-        public UserRole Role { get; set; }
-    }
-
-    public class AuthorizeRequest
-    {
-        public required string Email { get; set; }
     }
 }
