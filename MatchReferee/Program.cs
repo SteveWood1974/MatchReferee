@@ -121,7 +121,9 @@ app.UseRewriter(new RewriteOptions()
     .AddRewrite("^register/club/?$", "register-club.html", skipRemainingRules: true)
 
     //Secure URLs
+
     .AddRewrite("^secure/landing/?$", "landing.html", skipRemainingRules: true)
+    .AddRewrite("^secure/dashboard/referee/?$", "secure/dashboard/dashboard-referee.html", skipRemainingRules: true)
     );
 
 // Default files
