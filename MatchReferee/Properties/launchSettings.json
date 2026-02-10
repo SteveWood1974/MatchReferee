@@ -13,7 +13,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "secure/dashboard/referee/",
+      "launchUrl": "secure/referees/dashboard",
       "applicationUrl": "https://localhost:7093;http://localhost:5076",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",

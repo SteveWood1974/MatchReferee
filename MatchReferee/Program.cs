@@ -105,26 +105,48 @@ app.UseCors("AllowAll");
 
 // URL Rewriting
 app.UseRewriter(new RewriteOptions()
-    //Top level
+    // === Public / Marketing pages ===
     .AddRewrite("^/?$", "index.html", skipRemainingRules: true)
-    .AddRewrite("^signin/?$", "signin.html", skipRemainingRules: true)
-    .AddRewrite("^register/?$", "register.html", skipRemainingRules: true)
-    .AddRewrite("^about/?$", "about.html", skipRemainingRules: true)
-    .AddRewrite("^referees/?$", "referees.html", skipRemainingRules: true)
-    .AddRewrite("^coaches/?$", "coaches.html", skipRemainingRules: true)
-    .AddRewrite("^clubs/?$", "clubs.html", skipRemainingRules: true)
-    .AddRewrite("^leagues/?$", "leagues.html", skipRemainingRules: true)
+    .AddRewrite("^signin/?$", "public/signin.html", skipRemainingRules: true)
+    .AddRewrite("^register/?$", "public/register.html", skipRemainingRules: true)
+    .AddRewrite("^about/?$", "public/about.html", skipRemainingRules: true)
+    .AddRewrite("^referees/?$", "public/referees.html", skipRemainingRules: true)
+    .AddRewrite("^coaches/?$", "public/coaches.html", skipRemainingRules: true)
+    .AddRewrite("^clubs/?$", "public/clubs.html", skipRemainingRules: true)
+    .AddRewrite("^leagues/?$", "public/leagues.html", skipRemainingRules: true)
 
-    //Registration URLs
-    .AddRewrite("^register/referee/?$", "register-referee.html", skipRemainingRules: true)
-    .AddRewrite("^register/coach/?$", "register-coach.html", skipRemainingRules: true)
-    .AddRewrite("^register/club/?$", "register-club.html", skipRemainingRules: true)
+    // === Registration flows ===
+    .AddRewrite("^register/referee/?$", "public/register-referee.html", skipRemainingRules: true)
+    .AddRewrite("^register/coach/?$", "public/register-coach.html", skipRemainingRules: true)
+    .AddRewrite("^register/club/?$", "public/register-club.html", skipRemainingRules: true)
+    .AddRewrite("^register/league/?$", "public/register-league.html", skipRemainingRules: true)
 
-    //Secure URLs
+    // === Auth & legal pages ===
+    .AddRewrite("^forgot-password/?$", "public/forgot-password.html", skipRemainingRules: true)
+    .AddRewrite("^reset-password/?$", "public/reset-password.html", skipRemainingRules: true)
+    .AddRewrite("^verify-email/?$", "public/verify-email.html", skipRemainingRules: true)
+    .AddRewrite("^privacy/?$", "public/privacy.html", skipRemainingRules: true)
+    .AddRewrite("^terms/?$", "public/terms.html", skipRemainingRules: true)
 
-    .AddRewrite("^secure/landing/?$", "landing.html", skipRemainingRules: true)
-    .AddRewrite("^secure/dashboard/referee/?$", "secure/dashboard/dashboard-referee.html", skipRemainingRules: true)
-    );
+    // === Payment & subscription ===
+    .AddRewrite("^payment/?$", "payment.html", skipRemainingRules: true)
+
+    // === Secure / authenticated area ===
+    .AddRewrite("^secure/landing/?$", "secure/landing.html", skipRemainingRules: true)
+    .AddRewrite("^secure/profile/?$", "secure/profile.html", skipRemainingRules: true)
+
+    .AddRewrite("^secure/referees/dashboard/?$", "secure/referees/dashboard-referee.html", skipRemainingRules: true)
+    .AddRewrite("^secure/coaches/dashboard/?$", "secure/coaches/dashboard-coach.html", skipRemainingRules: true)
+    .AddRewrite("^secure/clubs/dashboard/?$", "secure/clubs/dashboard-club.html", skipRemainingRules: true)
+);
+
+app.UseStatusCodePages(async context =>
+{
+    if (context.HttpContext.Response.StatusCode == 404)
+    {
+        context.HttpContext.Response.Redirect("/404.html");
+    }
+});
 
 // Default files
 app.UseDefaultFiles(new DefaultFilesOptions

@@ -92,8 +92,8 @@ For Leagues:
 ├──────────────┼─────────────────┼─────────────────────────────────────┤
 │ Referee      │ Free            │ Full access                         │
 │ Coach        │ £7.00/month     │ Full access (free if adopted by club)│
-│ Club         │ £20/month       │ Multi-coach, branded page, dashboard│
-│ League       │ £50/month       │ Bulk upload, central venue coverage │
+│ Club         │ £30/month       │ Multi-coach, branded page, dashboard│
+│ League       │ £70/month       │ Bulk upload, central venue coverage │
 └──────────────┴─────────────────┴─────────────────────────────────────┘
 
 Revenue Streams:

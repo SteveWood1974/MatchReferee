@@ -78,22 +78,55 @@ window.setupNavbarAuth = function () {
  * Load navbar + setup auth
  */
 window.loadNavbar = function () {
+    const navbarEl = document.getElementById('navbar');
+    if (!navbarEl) return;
+
+    let spinnerTimer = null;
+
+    // Only show spinner after delay — but DON'T clear innerHTML yet
+    spinnerTimer = setTimeout(() => {
+        // Add spinner on top (overlay style) instead of replacing everything
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.inset = '0';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.background = 'rgba(0,0,0,0.4)'; // slight overlay so original bg stays visible
+        overlay.innerHTML = `
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        `;
+        navbarEl.style.position = 'relative'; // make sure overlay positions correctly
+        navbarEl.appendChild(overlay);
+        navbarEl.dataset.overlay = 'true'; // mark it so we can remove later
+    }, 800);
+
     fetch('/parts/navbar.html')
         .then(r => {
             if (!r.ok) throw new Error('Navbar load failed');
             return r.text();
         })
         .then(html => {
-            const navbarEl = document.getElementById('navbar');
-            if (navbarEl) navbarEl.innerHTML = html;
-            // Call auth setup after navbar is inserted
+            clearTimeout(spinnerTimer);
+
+            // Remove any overlay spinner
+            const overlay = navbarEl.querySelector('[data-overlay="true"]');
+            if (overlay) overlay.remove();
+
+            // Safe replacement — this worked before
+            navbarEl.innerHTML = html;
+
             if (typeof window.setupNavbarAuth === 'function') {
                 window.setupNavbarAuth();
             }
         })
         .catch(err => {
-            const navbarEl = document.getElementById('navbar');
-            if (navbarEl) navbarEl.innerHTML = '<p class="text-danger text-center">Navigation error</p>';
+            clearTimeout(spinnerTimer);
+            const overlay = navbarEl.querySelector('[data-overlay="true"]');
+            if (overlay) overlay.remove();
+            navbarEl.innerHTML = '<p class="text-danger text-center py-3">Navigation error</p>';
             console.error(err);
         });
 };

@@ -15,13 +15,22 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="wwwroot\secure\coaches\" />
+    <Folder Include="wwwroot\secure\leagues\" />
+    <Folder Include="wwwroot\secure\admin\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\about.html">
+    <Compile Update="Controllers\ProfileController.cs">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\public\about.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\favicon.png">
+    <Content Update="wwwroot\public\favicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\img\favicon.png">
@@ -30,19 +39,19 @@
     <Content Update="wwwroot\img\referee.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\verify-email.html">
+    <Content Update="wwwroot\public\verify-email.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\landing.html">
+    <Content Update="wwwroot\secure\landing.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\register.html">
+    <Content Update="wwwroot\public\register.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\signin.html">
+    <Content Update="wwwroot\public\signin.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

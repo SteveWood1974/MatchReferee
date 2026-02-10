@@ -55,7 +55,7 @@ namespace MatchReferee.Controllers
             if (profile == null)
                 return Unauthorized();
 
-            string priceId = (profile.Role, request.Tier.ToLower()) switch
+            string? priceId = (profile.Role, request.Tier.ToLower()) switch
             {
                 (UserRole.Coach, "coach") => _cfg["Stripe:PriceId_Coach"],
                 (UserRole.Club, "1-4") => _cfg["Stripe:PriceId_1_4"],

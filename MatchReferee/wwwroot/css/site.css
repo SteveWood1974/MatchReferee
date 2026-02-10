@@ -60,13 +60,18 @@ nav {
     font-style: italic;
 }
 
+/* Base rule */
 .brand-grey {
-    background: #444444; /* Fallback for old browsers */
-    background: linear-gradient(to bottom, #222222 0%, #000000 100%);
-    background: -webkit-linear-gradient(top, #222222 0%, #000000 100%);
-    background: -moz-linear-gradient(top, #222222 0%, #000000 100%);
-    background: -o-linear-gradient(top, #222222 0%, #000000 100%);
-    background: -ms-linear-gradient(top, #222222 0%, #000000 100%);
+    background-color: #222222 !important;
+    background-image: linear-gradient(to bottom, #222222 0%, #000000 100%) !important;
+    color: white !important;
+}
+
+/* Higher specificity for Bootstrap navbar */
+.navbar-expand-lg.brand-grey,
+.navbar.brand-grey {
+    background-color: #222222 !important;
+    background-image: linear-gradient(to bottom, #222222 0%, #000000 100%) !important;
 }
 
 .brand-green {
@@ -284,3 +289,12 @@ nav {
     display: flex;
     align-items: center;
 }
+
+.navbar-loading-spinner {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .navbar-loading-spinner.visible {
+        opacity: 1;
+    }
