@@ -361,3 +361,27 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Firebase & secrets
+appsettings.json
+appsettings.*.json
+*.user
+*.secrets
+*.pem
+*.key
+*.jsonkey
+firebase.json
+.google-credentials.json
+FIREBASE_CREDENTIALS_PATH
+FIREBASE_CREDENTIALS_JSON
+
+# Environment variables / local config
+.env
+.env.local
+.env.development
+.env.production
+
+# Build / temp files
+bin/
+obj/
+wwwroot/dist/
