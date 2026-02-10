@@ -365,12 +365,14 @@ FodyWeavers.xsd
 # Firebase & secrets
 appsettings.json
 appsettings.*.json
+launchSettings.json
 *.user
 *.secrets
 *.pem
 *.key
 *.jsonkey
 firebase.json
+firebase_credentials.json
 .google-credentials.json
 FIREBASE_CREDENTIALS_PATH
 FIREBASE_CREDENTIALS_JSON
