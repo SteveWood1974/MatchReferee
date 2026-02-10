@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AI References\**" />
+    <Content Remove="AI References\**" />
+    <EmbeddedResource Remove="AI References\**" />
+    <None Remove="AI References\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Stripe.net" Version="49.0.0" />
