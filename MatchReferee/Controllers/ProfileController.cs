@@ -14,7 +14,7 @@ namespace MatchReferee.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]   // Requires valid Firebase JWT
+    [Authorize]   // Requires valid Firebase JWT
     public class ProfileController : ControllerBase
     {
         private readonly FirebaseService _firebaseService;

@@ -50,6 +50,8 @@ else
 
 // Add controllers with JSON options
 builder.Services.AddControllers()
+    .AddApplicationPart(typeof(MatchReferee.Controllers.ProfileController).Assembly)
+    .AddApplicationPart(typeof(MatchReferee.Controllers.AuthController).Assembly)
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

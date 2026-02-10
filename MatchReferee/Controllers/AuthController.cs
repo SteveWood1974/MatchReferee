@@ -26,30 +26,44 @@ namespace MatchReferee.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            Console.WriteLine("REGISTRATION: Request received");
+            Console.WriteLine($"  Role: {request.Role}");
+            Console.WriteLine($"  Name: {request.Name}");
+            Console.WriteLine($"  Address: {request.Address}");
+            Console.WriteLine($"  AffiliationNumber: {request.AffiliationNumber}");
+
             if (!ModelState.IsValid)
+            {
+                Console.WriteLine("REGISTRATION: ModelState invalid");
                 return BadRequest(ModelState);
+            }
 
             try
             {
-                // 1. Verify Firebase ID token
+                Console.WriteLine("REGISTRATION: Verifying token...");
                 var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(request.IdToken);
                 var uid = decodedToken.Uid;
+                Console.WriteLine($"REGISTRATION: Token verified. UID = {uid}");
 
-                // 2. Check if user already exists (via service)
+                Console.WriteLine("REGISTRATION: Checking existing user...");
                 var existing = await _firebaseService.GetUserAsync(uid);
                 if (existing != null)
+                {
+                    Console.WriteLine("REGISTRATION: User already exists");
                     return BadRequest("User already exists");
+                }
 
-                // 3. Convert Role string → enum
+                Console.WriteLine("REGISTRATION: Mapping role...");
                 var role = request.Role.ToLower() switch
                 {
                     "referee" => UserRole.Referee,
                     "coach" => UserRole.Coach,
                     "club" => UserRole.Club,
-                    _ => throw new BadHttpRequestException("Invalid role. Must be 'Referee', 'Coach', or 'Club'.")
+                    _ => throw new BadHttpRequestException("Invalid role")
                 };
+                Console.WriteLine($"REGISTRATION: Role mapped to {role}");
 
-                // 4. Build UserProfile
+                Console.WriteLine("REGISTRATION: Creating UserProfile...");
                 var userProfile = new UserProfile
                 {
                     FirebaseUid = uid,
@@ -61,43 +75,36 @@ namespace MatchReferee.Controllers
                     MaxLogins = role == UserRole.Club ? 0 : null
                 };
 
-                // 5. Save to Realtime DB (via FirebaseService – REST)
+                Console.WriteLine("REGISTRATION: Saving profile to DB...");
                 await _firebaseService.CreateOrUpdateUserAsync(userProfile);
+                Console.WriteLine("REGISTRATION: Profile saved OK");
 
-                // 6. Set custom claims
+                Console.WriteLine("REGISTRATION: Setting custom claims...");
                 var claims = new Dictionary<string, object>
-                {
-                    { "role", request.Role.ToLower() }
-                };
-
-                if (role == UserRole.Coach)
-                {
-                    claims["status"] = "payment_pending";  // Coach must pay
-                }
-                else if (role == UserRole.Club)
-                {
-                    claims["status"] = "payment_pending";  // Club pays later
-                }
-                else // Referee
-                {
+        {
+            { "role", request.Role.ToLower() }
+        };
+                if (role == UserRole.Coach || role == UserRole.Club)
+                    claims["status"] = "payment_pending";
+                else
                     claims["status"] = "active";
-                    userProfile.SubscriptionActive = true;
-                }
 
                 await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(uid, claims);
+                Console.WriteLine("REGISTRATION: Claims set OK");
 
+                Console.WriteLine("REGISTRATION: Success");
                 return Ok(new { Message = "User registered successfully" });
             }
             catch (FirebaseAuthException ex)
             {
+                Console.WriteLine($"REGISTRATION ERROR (Auth): {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return BadRequest($"Firebase auth error: {ex.Message}");
-            }
-            catch (BadHttpRequestException)
-            {
-                return BadRequest("Invalid role");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"REGISTRATION ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
                 return StatusCode(500, $"Internal error: {ex.Message}");
             }
         }
