@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Properties\" />
     <Folder Include="wwwroot\secure\coaches\" />
     <Folder Include="wwwroot\secure\leagues\" />
     <Folder Include="wwwroot\secure\admin\" />
