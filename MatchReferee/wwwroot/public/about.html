@@ -21,7 +21,7 @@
         <!-- Hero Section -->
         <section class="bg-football text-white d-flex align-items-center">
             <div class="container text-center">
-                <h2 class="display-4 fw-bold mb-4">Welcome to Match Referee</h2>
+                <h1 class="display-4 fw-bold mb-4">About Match Referee</h1>
                 <p class="lead mb-5">The premier platform for UK football coaches and referees to arrange match attendance seamlessly.</p>
             </div>
         </section>
@@ -40,35 +40,16 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
-        <div class="container text-center">
-            <p>© 2025 Match Referee. All rights reserved.</p>
-            <p class="mt-2">
-                Contact: <a href="mailto:support@matchreferee.co.uk" class="text-white text-decoration-underline">support@matchreferee.co.uk</a> |
-                <a href="/privacy" class="text-white text-decoration-underline">Privacy Policy</a>
-            </p>
-        </div>
-    </footer>
+    <div id="footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- Script to load navbar.html -->
+    <script src="/js/common.js"></script>
     <script>
-        fetch('/parts/navbar.html')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to load navbar: ' + response.statusText);
-                }
-                return response.text();
-            })
-            .then(data => {
-                document.getElementById('navbar').innerHTML = data;
-            })
-            .catch(error => {
-                document.getElementById('navbar').innerHTML = '<p>Error loading navigation bar.</p>';
-                console.error('Error:', error);
-            });
+        window.loadNavbar();
+        window.loadFooter();
     </script>
+
+  
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

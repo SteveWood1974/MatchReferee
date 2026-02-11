@@ -10,9 +10,23 @@
         <ul class="navbar-nav ms-auto align-items-center">
             <li id="home" class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
             <li id="about" class="nav-item"><a class="nav-link text-white" href="/about">About</a></li>
-            <li id="signin" class="nav-item"><a class="nav-link text-white" href="/signin">Sign In</a></li>
-            <li id="profile" class="nav-item d-none">
-                <a class="nav-link text-white" href="/profile">Hi, <span id="userName"></span></a>
+
+            <!-- Sign In (shown when logged out) -->
+            <li id="signin" class="nav-item">
+                <a class="nav-link text-white" href="/signin">Sign In</a>
+            </li>
+
+            <!-- Account dropdown (shown when logged in) -->
+            <li id="profile" class="nav-item dropdown d-none">
+                <a class="nav-link text-white dropdown-toggle" href="#" id="accountDropdown"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Account <span id="userName"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                    <li><a class="dropdown-item" href="/secure/profile">Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="window.signOut(); return false;">Sign Out</a></li>
+                </ul>
             </li>
         </ul>
     </div>

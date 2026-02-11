@@ -47,86 +47,73 @@ window.initFirebasePage = async function (callback) {
 };
 
 /**
- * Sets up navbar sign in/profile state
+ * Sets up navbar sign in/profile state + dropdown when logged in
  */
 window.setupNavbarAuth = function () {
     if (!window.firebaseAuth) return;
 
     const auth = window.firebaseAuth;
-    const signin = document.getElementById('signin');
-    const profile = document.getElementById('profile');
-    const nameEl = document.getElementById('userName');
+    const signinEl = document.getElementById('signin');
+    const profileEl = document.getElementById('profile');
 
-    if (!signin || !profile || !nameEl) return;
+    if (!signinEl || !profileEl) return;
 
     auth.onAuthStateChanged(user => {
         if (user && user.emailVerified) {
-            profile.classList.remove('d-none');
-            signin.classList.add('d-none');
-            nameEl.textContent = user.displayName || user.email.split('@')[0];
+            // Hide Sign In, show Account dropdown
+            signinEl.classList.add('d-none');
+            profileEl.classList.remove('d-none');
+
+            // Update display name
+            const nameEl = document.getElementById('userName');
+            if (nameEl) {
+                nameEl.textContent = user.displayName || user.email.split('@')[0];
+            }
+
+            // Optional: Show verification warning if needed
+            if (!user.emailVerified) {
+                console.warn('User logged in but email not verified');
+            }
         } else {
-            signin.classList.remove('d-none');
-            profile.classList.add('d-none');
+            // Show Sign In, hide Account
+            signinEl.classList.remove('d-none');
+            profileEl.classList.add('d-none');
         }
     });
 
-    // Global sign out function
-    window.signOut = () => auth.signOut().then(() => location.href = '/');
+    // Global sign out function (can be called from dropdown)
+    window.signOut = () => {
+        auth.signOut().then(() => {
+            location.href = '/';
+        }).catch(err => {
+            console.error('Sign out failed:', err);
+        });
+    };
 };
 
 /**
  * Load navbar + setup auth
  */
 window.loadNavbar = function () {
-    const navbarEl = document.getElementById('navbar');
-    if (!navbarEl) return;
-
-    let spinnerTimer = null;
-
-    // Only show spinner after delay — but DON'T clear innerHTML yet
-    spinnerTimer = setTimeout(() => {
-        // Add spinner on top (overlay style) instead of replacing everything
-        const overlay = document.createElement('div');
-        overlay.style.position = 'absolute';
-        overlay.style.inset = '0';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.background = 'rgba(0,0,0,0.4)'; // slight overlay so original bg stays visible
-        overlay.innerHTML = `
-            <div class="spinner-border text-light" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        `;
-        navbarEl.style.position = 'relative'; // make sure overlay positions correctly
-        navbarEl.appendChild(overlay);
-        navbarEl.dataset.overlay = 'true'; // mark it so we can remove later
-    }, 800);
-
     fetch('/parts/navbar.html')
         .then(r => {
             if (!r.ok) throw new Error('Navbar load failed');
             return r.text();
         })
         .then(html => {
-            clearTimeout(spinnerTimer);
+            const navbarEl = document.getElementById('navbar');
+            if (navbarEl) {
+                navbarEl.innerHTML = html;
 
-            // Remove any overlay spinner
-            const overlay = navbarEl.querySelector('[data-overlay="true"]');
-            if (overlay) overlay.remove();
-
-            // Safe replacement — this worked before
-            navbarEl.innerHTML = html;
-
-            if (typeof window.setupNavbarAuth === 'function') {
-                window.setupNavbarAuth();
+                // IMPORTANT: Call auth setup after navbar is inserted
+                if (typeof window.setupNavbarAuth === 'function') {
+                    window.setupNavbarAuth();
+                }
             }
         })
         .catch(err => {
-            clearTimeout(spinnerTimer);
-            const overlay = navbarEl.querySelector('[data-overlay="true"]');
-            if (overlay) overlay.remove();
-            navbarEl.innerHTML = '<p class="text-danger text-center py-3">Navigation error</p>';
+            const navbarEl = document.getElementById('navbar');
+            if (navbarEl) navbarEl.innerHTML = '<p class="text-danger text-center">Navigation error</p>';
             console.error(err);
         });
 };
