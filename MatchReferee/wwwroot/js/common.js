@@ -49,8 +49,15 @@ window.initFirebasePage = async function (callback) {
 /**
  * Sets up navbar sign in/profile state + dropdown when logged in
  */
-window.setupNavbarAuth = function () {
-    if (!window.firebaseAuth) return;
+window.setupNavbarAuth = async function () {
+    if (!window.firebaseAuth) {
+        try {
+            await window.initFirebase();
+        } catch (err) {
+            console.error('Failed to initialize Firebase for navbar:', err);
+            return; // Bail if init fails
+        }
+    }
 
     const auth = window.firebaseAuth;
     const signinEl = document.getElementById('signin');
@@ -68,11 +75,6 @@ window.setupNavbarAuth = function () {
             const nameEl = document.getElementById('userName');
             if (nameEl) {
                 nameEl.textContent = user.displayName || user.email.split('@')[0];
-            }
-
-            // Optional: Show verification warning if needed
-            if (!user.emailVerified) {
-                console.warn('User logged in but email not verified');
             }
         } else {
             // Show Sign In, hide Account
