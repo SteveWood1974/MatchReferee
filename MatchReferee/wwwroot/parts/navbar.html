@@ -14,6 +14,7 @@
                 <img id="navbarProfilePic"
                      alt="Profile"
                      class="rounded-circle opacity-0 transition-opacity duration-300"
+                     src="/img/empty-user.png"
                      width="32" height="32"
                      style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;"
                      onload="this.classList.remove('opacity-0'); this.classList.add('opacity-100');"
@@ -23,7 +24,7 @@
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                 <li><a class="dropdown-item" href="/secure/profile">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" onclick="signOut()">Sign Out</a></li>
+                <li><a class="dropdown-item" href="#" onclick="window.signOut()">Sign Out</a></li>
             </ul>
         </div>
 

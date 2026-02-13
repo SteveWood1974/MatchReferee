@@ -7,6 +7,19 @@
 let firebaseApp = null;
 let firebaseAuth = null;
 
+// Global sign out - define early so it's always available
+window.signOut = function () {
+    if (!window.firebaseAuth) {
+        console.warn("Firebase auth not ready - cannot sign out");
+        return;
+    }
+    window.firebaseAuth.signOut().then(() => {
+        location.href = '/';
+    }).catch(err => {
+        console.error('Sign out failed:', err);
+    });
+};
+
 /**
  * Initialize Firebase once and expose globally
  */

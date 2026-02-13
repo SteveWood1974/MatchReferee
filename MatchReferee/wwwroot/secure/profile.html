@@ -34,6 +34,7 @@
                             <!-- Current photo (updates after save) -->
                             <img id="currentProfilePic"
                                  alt="Profile picture"
+                                 src="/img/empty-user.png"
                                  class="rounded-circle mb-3"
                                  width="150" height="150"
                                  style="object-fit: cover; border: 3px solid #ddd;"
@@ -130,6 +131,7 @@
         // Load navbar & footer immediately
         window.loadNavbar();
         window.loadFooter();
+
         // Wait for Firebase
         window.initFirebasePage(async () => {
             const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
@@ -204,6 +206,7 @@
                 }
             });
         });
+
         // Edit button
         document.getElementById('editProfileBtn')?.addEventListener('click', () => {
             alert('Profile editing coming soon!\n\nYou will be able to update your details, add photo, set availability, etc.');
