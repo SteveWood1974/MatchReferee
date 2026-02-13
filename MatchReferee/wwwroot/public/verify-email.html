@@ -3,58 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verified - Match Referee</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Email Action - Match Referee</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="/css/site.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center">
-        <div class="text-center">
-            <h1>Verifying your email...</h1>
-            <div class="spinner-border text-success" role="status">
-                
+<body class="bg-light d-flex flex-column min-vh-100 sansation-regular">
+    <main class="flex-grow-1">
+        <!-- Navigation -->
+        <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center" style="min-height: 60px;"></nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section bg-football text-white d-flex align-items-center" style="min-height: 350px;">
+            <div class="container text-center">
+                <h1 class="display-4 fw-bold mb-4 sansation-bold" id="heroTitle">Processing Your Request</h1>
+                <p class="lead mb-5" id="heroSubtitle">Please wait while we handle your email action...</p>
+                <div id="loadingSpinner" class="d-flex justify-content-center">
+                    <div class="spinner-border text-light" style="width: 4rem; height: 4rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Main Result Section -->
+        <section id="resultSection" class="py-5 d-none">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+
+                        <!-- Email Verification Success -->
+                        <div id="verifySuccess" class="d-none text-center">
+                            <h3 class="display-6 fw-bold mb-4 text-success">Email Verified!</h3>
+                            <p class="lead mb-5">
+                                Your email address has been confirmed. You can now sign in to access your Match Referee account.
+                            </p>
+                            <a href="/signin" class="btn btn-brand-green btn-lg px-5 d-inline-flex align-items-center gap-2">
+                                <i class="fas fa-right-to-bracket"></i>
+                                Sign In Now
+                            </a>
+                        </div>
+
+                        <!-- Password Reset Form -->
+                        <div id="resetPasswordForm" class="d-none">
+                            <h3 class="text-center display-6 fw-bold mb-4">Reset Your Password</h3>
+                            <p class="text-center mb-4 lead">Enter a new password for your account.</p>
+                            <form id="resetForm">
+                                <div class="mb-4">
+                                    <label for="newPassword" class="form-label fw-semibold">New Password</label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="password" class="form-control" id="newPassword" placeholder="New password" required autocomplete="new-password">
+                                        <button type="button" class="btn btn-brand-green" id="toggleNewPassword">
+                                            <i class="fas fa-eye" id="newEyeIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+                                    <input type="password" class="form-control form-control-lg" id="confirmPassword" placeholder="Confirm new password" required autocomplete="new-password">
+                                </div>
+                                <button type="submit" id="resetBtn" class="btn btn-brand-green btn-lg w-100">Reset Password</button>
+                                <p id="resetError" class="alert alert-danger mt-3 d-none"></p>
+                            </form>
+                        </div>
+
+                        <!-- Generic Error -->
+                        <div id="errorContent" class="d-none text-center">
+                            <h3 class="display-6 fw-bold mb-4 text-danger">Action Failed</h3>
+                            <p class="lead mb-5" id="errorMessage">Sorry, we couldn't process your request. The link may be invalid, expired, or already used.</p>
+                            <a href="/signin" class="btn btn-brand-green btn-lg px-5 d-inline-flex align-items-center gap-2">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Sign In
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom CTA -->
+        <section class="brand-green text-white py-5">
+            <div class="container text-center">
+                <h3 class="display-6 fw-bold mb-4">Ready to get back in the game..?</h3>
+                <p class="mb-5 lead">Sign in or register to start connecting with coaches, referees, and clubs.</p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <a href="/signin" class="btn btn-light btn-lg px-5 d-inline-flex align-items-center gap-2">
+                        <i class="fas fa-right-to-bracket"></i> Sign In
+                    </a>
+                    <a href="/register" class="btn btn-outline-light btn-lg px-5 d-inline-flex align-items-center gap-2">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="/js/common.js"></script>
+    <script>
+        window.loadNavbar();
+        window.loadFooter();
+
+        // Password visibility toggle for reset form
+        const toggleNewPassword = document.getElementById('toggleNewPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const newEyeIcon = document.getElementById('newEyeIcon');
+
+        toggleNewPassword?.addEventListener('click', () => {
+            const type = newPasswordInput.type === 'password' ? 'text' : 'password';
+            newPasswordInput.type = type;
+            newEyeIcon.classList.toggle('fa-eye');
+            newEyeIcon.classList.toggle('fa-eye-slash');
+            toggleNewPassword.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+        });
+    </script>
+
+    <!-- Action Code Handling Logic -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-        import { getAuth, applyActionCode } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getAuth, applyActionCode, confirmPasswordReset } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-        async function verify() {
+        async function handleAction() {
             const url = new URL(location.href);
             const mode = url.searchParams.get('mode');
             const oobCode = url.searchParams.get('oobCode');
 
-            if (mode !== 'verifyEmail' || !oobCode) {
-                document.body.innerHTML = '<h1 class="text-center mt-5 text-danger">Invalid link</h1>';
+            if (!mode || !oobCode) {
+                showError('Invalid or missing link parameters.');
                 return;
             }
 
             try {
                 const resp = await fetch('/api/config/firebase');
+                if (!resp.ok) throw new Error('Failed to load configuration');
                 const config = await resp.json();
+
                 const app = initializeApp(config);
                 const auth = getAuth(app);
 
-                await applyActionCode(auth, oobCode);
-                document.body.innerHTML = `
-                        <div class="text-center mt-5">
-                            <h1 class="text-success">Email Verified!</h1>
-                            <p><a href="/signin">Click here to Sign in</a></p>
-                        </div>
-                    `;
+                // Hide loading
+                document.getElementById('loadingSpinner').classList.add('d-none');
+                document.getElementById('resultSection').classList.remove('d-none');
+
+                if (mode === 'verifyEmail') {
+                    await applyActionCode(auth, oobCode);
+                    document.getElementById('heroTitle').textContent = 'Email Verified!';
+                    document.getElementById('heroSubtitle').textContent = 'Your account is now confirmed.';
+                    document.getElementById('verifySuccess').classList.remove('d-none');
+                }
+                else if (mode === 'resetPassword') {
+                    document.getElementById('heroTitle').textContent = 'Reset Your Password';
+                    document.getElementById('heroSubtitle').textContent = 'Choose a strong new password to continue.';
+                    document.getElementById('resetPasswordForm').classList.remove('d-none');
+
+                    // Handle form submission
+                    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const newPass = document.getElementById('newPassword').value;
+                        const confirmPass = document.getElementById('confirmPassword').value;
+                        const resetError = document.getElementById('resetError');
+
+                        if (newPass !== confirmPass) {
+                            resetError.textContent = 'Passwords do not match.';
+                            resetError.classList.remove('d-none');
+                            return;
+                        }
+                        if (newPass.length < 6) {
+                            resetError.textContent = 'Password must be at least 6 characters.';
+                            resetError.classList.remove('d-none');
+                            return;
+                        }
+
+                        resetError.classList.add('d-none');
+                        document.getElementById('resetBtn').disabled = true;
+                        document.getElementById('resetBtn').textContent = 'Resetting...';
+
+                        try {
+                            await confirmPasswordReset(auth, oobCode, newPass);
+                            document.getElementById('resetPasswordForm').innerHTML = `
+                                    <div class="text-center">
+                                        <h3 class="text-success display-6 fw-bold mb-4">Password Reset Successful!</h3>
+                                        <p class="lead mb-5">You can now sign in with your new password.</p>
+                                        <a href="/signin" class="btn btn-light btn-lg px-5">Sign In</a>
+                                    </div>
+                                `;
+                        } catch (err) {
+                            let msg = 'Failed to reset password.';
+                            if (err.code === 'auth/expired-action-code') msg = 'This reset link has expired.';
+                            if (err.code === 'auth/invalid-action-code') msg = 'Invalid or already used reset link.';
+                            if (err.code === 'auth/user-disabled') msg = 'This account is disabled.';
+                            resetError.textContent = msg + ' ' + (err.message || '');
+                            resetError.classList.remove('d-none');
+                        } finally {
+                            document.getElementById('resetBtn').disabled = false;
+                            document.getElementById('resetBtn').textContent = 'Reset Password';
+                        }
+                    });
+                }
+                else {
+                    showError('Unsupported action mode.');
+                }
             } catch (err) {
-                document.body.innerHTML = `
-                        <div class="text-center mt-5">
-                            <h1 class="text-danger">Verification Failed</h1>
-                            <p>${err.message}</p>
-                        </div>
-                    `;
+                showError(err.message || 'An error occurred processing your request.');
             }
         }
 
-        verify();
+        function showError(msg) {
+            document.getElementById('heroTitle').textContent = 'Action Failed';
+            document.getElementById('heroSubtitle').textContent = 'We couldn\'t complete your request.';
+            document.getElementById('loadingSpinner').classList.add('d-none');
+            document.getElementById('errorMessage').textContent = msg;
+            document.getElementById('errorContent').classList.remove('d-none');
+            document.getElementById('resultSection').classList.remove('d-none');
+        }
+
+        // Run on page load
+        handleAction();
     </script>
 </body>
 </html>
