@@ -12,13 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100 sansation-regular">
-
     <main class="flex-grow-1">
         <!-- Navigation -->
         <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center " style="min-height: 60px;">
-
         </nav>
-
         <!-- Hero Section -->
         <section class="bg-football text-white d-flex align-items-center">
             <div class="container text-center">
@@ -26,7 +23,6 @@
                 <p class="lead mb-5">View and update your profile. A better profile gets more matches.</p>
             </div>
         </section>
-
         <!-- Main Section -->
         <section id="main" class="py-5">
             <div class="container text-center">
@@ -35,51 +31,38 @@
                         <!-- Inside your profile page, e.g. after name/email display -->
                         <div class="mb-4">
                             <h5>Profile Picture</h5>
-
                             <!-- Current photo (updates after save) -->
-                            <div class="relative inline-block mx-auto overflow-hidden rounded-full" style="width: 150px; height: 150px; box-shadow: 0 0 0 3px #ddd;">
-                                <img id="currentProfilePic"
-                                     alt="Profile picture"
-                                     class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
-                                     onerror="this.src='/img/default-user.png'">
-
-                                <div id="photoLoader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-10 transition-opacity duration-500">
-                                    <div class="spinner-border text-brand-green" role="status" style="width: 2.5rem; height: 2.5rem;">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <img id="currentProfilePic"
+                                 alt="Profile picture"
+                                 class="rounded-circle mb-3"
+                                 width="150" height="150"
+                                 style="object-fit: cover; border: 3px solid #ddd;"
+                                 onerror="this.src='/img/default-user.png'">
 
                             <!-- File input + preview -->
                             <div class="mb-3">
                                 <input type="file" id="profilePictureInput" accept="image/*" class="form-control">
                                 <small class="form-text text-muted">Max 2MB, JPG/PNG/GIF</small>
                             </div>
-
                             <!-- Preview area (shows selected image before upload) -->
                             <img id="imagePreview"
                                  class="d-none rounded mb-3"
                                  width="150" height="150"
                                  style="object-fit: cover;">
-
                             <button id="uploadProfilePicBtn" class="btn btn-primary" disabled>Upload Photo</button>
                             <p id="uploadStatus" class="mt-2 small"></p>
                         </div>
-
                         <div class="card shadow-lg border-0">
                             <div class="card-header bg-success text-white text-center py-4">
                                 <h3 class="mb-0"><i class="fas fa-user-circle me-2"></i> My Profile</h3>
                             </div>
-
                             <div class="card-body p-4 p-md-5">
                                 <!-- Loading state -->
                                 <div id="loading" class="text-center my-5">
                                     <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
-
                                     </div>
                                     <p class="mt-3 text-muted">Loading your profile...</p>
                                 </div>
-
                                 <!-- Profile content -->
                                 <div id="profileContent" class="d-none">
                                     <div class="text-center mb-5">
@@ -89,7 +72,6 @@
                                         <h4 id="displayNameHeader">Loading...</h4>
                                         <p class="text-muted" id="emailHeader"></p>
                                     </div>
-
                                     <div class="row g-4">
                                         <div class="col-md-6">
                                             <div class="card bg-light border-0 h-100">
@@ -104,7 +86,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div class="col-md-6">
                                             <div class="card bg-light border-0 h-100">
                                                 <div class="card-body">
@@ -116,7 +97,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="mt-5 text-center">
                                         <button id="editProfileBtn" class="btn btn-outline-primary btn-lg px-5 me-3">
                                             <i class="fas fa-edit me-2"></i> Edit Profile
@@ -125,12 +105,10 @@
                                             <i class="fas fa-sign-out-alt me-2"></i> Sign Out
                                         </button>
                                     </div>
-
                                     <p id="error" class="alert alert-danger mt-4 d-none"></p>
                                 </div>
                             </div>
                         </div>
-
                         <div class="text-center mt-5">
                             <p class="text-muted">
                                 <a href="/secure/referees/dashboard-referee.html" class="text-decoration-none">
@@ -138,25 +116,20 @@
                                 </a>
                             </p>
                         </div>
-
                     </div>
                 </div>
             </div>
         </section>
     </main>
-
     <!-- Footer -->
     <div id="footer"></div>
-
     <!-- Scripts -->
     <script src="/js/common.js"></script>
     <script type="module" src="/js/profile.js"></script>
-
     <script type="module">
         // Load navbar & footer immediately
         window.loadNavbar();
         window.loadFooter();
-
         // Wait for Firebase
         window.initFirebasePage(async () => {
             const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
@@ -164,23 +137,19 @@
             const errorEl = document.getElementById('error');
             const loadingEl = document.getElementById('loading');
             const contentEl = document.getElementById('profileContent');
-
             if (!loadingEl || !contentEl) {
                 console.error("Loading or content element missing");
                 return;
             }
-
             loadingEl.classList.remove('d-none');
             contentEl.classList.add('d-none');
             if (errorEl) errorEl.classList.add('d-none');
-
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     location.href = '/signin';
                     return;
                 }
                 console.log("User authenticated:", user.uid);
-
                 try {
                     // Show Firebase basics immediately
                     document.getElementById('displayName').textContent = user.displayName || 'Not set';
@@ -191,44 +160,36 @@
                     document.getElementById('verified').className = user.emailVerified
                         ? 'badge bg-success'
                         : 'badge bg-warning';
-
                     // Fetch profile data
                     console.log("Fetching /api/profile...");
                     const token = await user.getIdToken();
                     const resp = await fetch('/api/profile', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-
                     if (!resp.ok) {
                         const errorText = await resp.text();
                         throw new Error(`API failed: ${resp.status} - ${errorText}`);
                     }
-
                     const profile = await resp.json();
                     console.log("Profile data loaded:", profile);
-
                     document.getElementById('role').textContent = profile.Role
                         ? profile.Role.charAt(0).toUpperCase() + profile.Role.slice(1)
                         : 'Unknown';
-
                     document.getElementById('subscriptionStatus').textContent = profile.SubscriptionActive
                         ? 'Active'
                         : 'Inactive';
                     document.getElementById('subscriptionStatus').className = profile.SubscriptionActive
                         ? 'badge bg-success'
                         : 'badge bg-secondary';
-
                     if (profile.CreatedAt) {
                         const date = new Date(profile.CreatedAt);
                         document.getElementById('joinedDate').textContent = date.toLocaleDateString('en-GB');
                     } else {
                         document.getElementById('joinedDate').textContent = '—';
                     }
-
                     // Success - hide loading, show content
                     loadingEl.classList.add('d-none');
                     contentEl.classList.remove('d-none');
-
                 } catch (err) {
                     console.error('Profile load error:', err);
                     if (errorEl) {
@@ -243,13 +204,11 @@
                 }
             });
         });
-
         // Edit button
         document.getElementById('editProfileBtn')?.addEventListener('click', () => {
             alert('Profile editing coming soon!\n\nYou will be able to update your details, add photo, set availability, etc.');
         });
     </script>
-
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             // Make sure Firebase is initialized first (from common.js)
@@ -261,7 +220,6 @@
                     return;
                 }
             }
-
             // Now wait a tiny bit or poll for the function to exist
             const waitForFunction = () => {
                 if (typeof window.initProfilePictureUpload === 'function') {
@@ -270,7 +228,6 @@
                     setTimeout(waitForFunction, 100); // check every 100ms
                 }
             };
-
             waitForFunction();
         });
     </script>
