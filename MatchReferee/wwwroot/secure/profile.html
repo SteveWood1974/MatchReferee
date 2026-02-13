@@ -13,92 +13,131 @@
 </head>
 <body class="bg-light d-flex flex-column min-vh-100 sansation-regular">
 
-    <!-- Navigation -->
-    <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center " style="min-height: 60px;">
+    <main class="flex-grow-1">
+        <!-- Navigation -->
+        <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center " style="min-height: 60px;">
 
-    </nav>
+        </nav>
 
-    <main class="flex-grow-1 py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-7 col-xl-6">
+        <!-- Hero Section -->
+        <section class="bg-football text-white d-flex align-items-center">
+            <div class="container text-center">
+                <h1 class="display-4 fw-bold mb-4">About Match Referee</h1>
+                <p class="lead mb-5">The premier platform for UK football coaches and referees to arrange match attendance seamlessly.</p>
+            </div>
+        </section>
 
-                    <div class="card shadow-lg border-0">
-                        <div class="card-header bg-success text-white text-center py-4">
-                            <h3 class="mb-0"><i class="fas fa-user-circle me-2"></i> My Profile</h3>
-                        </div>
+        <!-- Main Section -->
+        <section id="about" class="py-5">
+            <div class="container text-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <!-- Inside your profile page, e.g. after name/email display -->
+                        <div class="mb-4">
+                            <h5>Profile Picture</h5>
 
-                        <div class="card-body p-4 p-md-5">
-                            <!-- Loading state -->
-                            <div id="loading" class="text-center my-5">
-                                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
-                                    
-                                </div>
-                                <p class="mt-3 text-muted">Loading your profile...</p>
+                            <!-- Current photo (updates after save) -->
+                            <img id="currentProfilePic"
+                                 src="/img/default-user.png"
+                                 alt="Profile picture"
+                                 class="rounded-circle mb-3"
+                                 width="150" height="150"
+                                 style="object-fit: cover;"
+                                 onerror="this.src='/img/default-user.png'">
+
+                            <!-- File input + preview -->
+                            <div class="mb-3">
+                                <input type="file" id="profilePictureInput" accept="image/*" class="form-control">
+                                <small class="form-text text-muted">Max 2MB, JPG/PNG/GIF</small>
                             </div>
 
-                            <!-- Profile content -->
-                            <div id="profileContent" class="d-none">
-                                <div class="text-center mb-5">
-                                    <div class="avatar-circle bg-success text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border-radius: 50%; font-size: 2.5rem;">
-                                        <i class="fas fa-user"></i>
+                            <!-- Preview area (shows selected image before upload) -->
+                            <img id="imagePreview"
+                                 class="d-none rounded mb-3"
+                                 width="150" height="150"
+                                 style="object-fit: cover;">
+
+                            <button id="uploadProfilePicBtn" class="btn btn-primary" disabled>Upload Photo</button>
+                            <p id="uploadStatus" class="mt-2 small"></p>
+                        </div>
+
+                        <div class="card shadow-lg border-0">
+                            <div class="card-header bg-success text-white text-center py-4">
+                                <h3 class="mb-0"><i class="fas fa-user-circle me-2"></i> My Profile</h3>
+                            </div>
+
+                            <div class="card-body p-4 p-md-5">
+                                <!-- Loading state -->
+                                <div id="loading" class="text-center my-5">
+                                    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+
                                     </div>
-                                    <h4 id="displayNameHeader">Loading...</h4>
-                                    <p class="text-muted" id="emailHeader"></p>
+                                    <p class="mt-3 text-muted">Loading your profile...</p>
                                 </div>
 
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="card bg-light border-0 h-100">
-                                            <div class="card-body">
-                                                <h6 class="text-success mb-3">Account Details</h6>
-                                                <p><strong>Full Name:</strong><br><span id="displayName">—</span></p>
-                                                <p><strong>Email:</strong><br><span id="email">—</span></p>
-                                                <p>
-                                                    <strong>Email Verified:</strong><br>
-                                                    <span id="verified" class="badge bg-secondary">Checking...</span>
-                                                </p>
+                                <!-- Profile content -->
+                                <div id="profileContent" class="d-none">
+                                    <div class="text-center mb-5">
+                                        <div class="avatar-circle bg-success text-white mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border-radius: 50%; font-size: 2.5rem;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <h4 id="displayNameHeader">Loading...</h4>
+                                        <p class="text-muted" id="emailHeader"></p>
+                                    </div>
+
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light border-0 h-100">
+                                                <div class="card-body">
+                                                    <h6 class="text-success mb-3">Account Details</h6>
+                                                    <p><strong>Full Name:</strong><br><span id="displayName">—</span></p>
+                                                    <p><strong>Email:</strong><br><span id="email">—</span></p>
+                                                    <p>
+                                                        <strong>Email Verified:</strong><br>
+                                                        <span id="verified" class="badge bg-secondary">Checking...</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="card bg-light border-0 h-100">
+                                                <div class="card-body">
+                                                    <h6 class="text-success mb-3">Role & Status</h6>
+                                                    <p><strong>Primary Role:</strong><br><span id="role">—</span></p>
+                                                    <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
+                                                    <p><strong>Joined:</strong><br><span id="joinedDate">—</span></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="card bg-light border-0 h-100">
-                                            <div class="card-body">
-                                                <h6 class="text-success mb-3">Role & Status</h6>
-                                                <p><strong>Primary Role:</strong><br><span id="role">—</span></p>
-                                                <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
-                                                <p><strong>Joined:</strong><br><span id="joinedDate">—</span></p>
-                                            </div>
-                                        </div>
+                                    <div class="mt-5 text-center">
+                                        <button id="editProfileBtn" class="btn btn-outline-primary btn-lg px-5 me-3">
+                                            <i class="fas fa-edit me-2"></i> Edit Profile
+                                        </button>
+                                        <button onclick="window.signOut()" class="btn btn-outline-danger btn-lg px-5">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Sign Out
+                                        </button>
                                     </div>
-                                </div>
 
-                                <div class="mt-5 text-center">
-                                    <button id="editProfileBtn" class="btn btn-outline-primary btn-lg px-5 me-3">
-                                        <i class="fas fa-edit me-2"></i> Edit Profile
-                                    </button>
-                                    <button onclick="window.signOut()" class="btn btn-outline-danger btn-lg px-5">
-                                        <i class="fas fa-sign-out-alt me-2"></i> Sign Out
-                                    </button>
+                                    <p id="error" class="alert alert-danger mt-4 d-none"></p>
                                 </div>
-
-                                <p id="error" class="alert alert-danger mt-4 d-none"></p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="text-center mt-5">
-                        <p class="text-muted">
-                            <a href="/secure/referees/dashboard-referee.html" class="text-decoration-none">
-                                <i class="fas fa-tachometer-alt me-1"></i> Go to Dashboard
-                            </a>
-                        </p>
-                    </div>
+                        <div class="text-center mt-5">
+                            <p class="text-muted">
+                                <a href="/secure/referees/dashboard-referee.html" class="text-decoration-none">
+                                    <i class="fas fa-tachometer-alt me-1"></i> Go to Dashboard
+                                </a>
+                            </p>
+                        </div>
 
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -106,6 +145,7 @@
 
     <!-- Scripts -->
     <script src="/js/common.js"></script>
+    <script type="module" src="/js/profile.js"></script>
 
     <script type="module">
         // Load navbar & footer immediately
@@ -188,6 +228,30 @@
         });
     </script>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Make sure Firebase is initialized first (from common.js)
+            if (!window.firebaseAuth) {
+                if (typeof window.initFirebase === 'function') {
+                    await window.initFirebase();
+                } else {
+                    console.warn("initFirebase not available");
+                    return;
+                }
+            }
+
+            // Now wait a tiny bit or poll for the function to exist
+            const waitForFunction = () => {
+                if (typeof window.initProfilePictureUpload === 'function') {
+                    window.initProfilePictureUpload();
+                } else {
+                    setTimeout(waitForFunction, 100); // check every 100ms
+                }
+            };
+
+            waitForFunction();
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

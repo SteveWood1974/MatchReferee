@@ -24,6 +24,7 @@ window.initFirebase = async function () {
         firebaseApp = initializeApp(cfg);
         firebaseAuth = getAuth(firebaseApp);
 
+        window.firebaseApp = firebaseApp;     // ← Add this line
         window.firebaseAuth = firebaseAuth;
         window.dispatchEvent(new Event('firebaseReady'));
 

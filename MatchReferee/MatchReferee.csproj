@@ -41,12 +41,6 @@
     <Content Update="wwwroot\public\favicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\img\favicon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\img\referee.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\public\verify-email.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
