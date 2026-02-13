@@ -56,35 +56,37 @@ window.setupNavbarAuth = async function () {
             await window.initFirebase();
         } catch (err) {
             console.error('Failed to initialize Firebase for navbar:', err);
-            return; // Bail if init fails
+            return;
         }
     }
 
     const auth = window.firebaseAuth;
     const signinEl = document.getElementById('signin');
     const profileEl = document.getElementById('profile');
+    const profilePic = document.getElementById('navbarProfilePic');
 
     if (!signinEl || !profileEl) return;
 
     auth.onAuthStateChanged(user => {
         if (user && user.emailVerified) {
-            // Hide Sign In, show Account dropdown
+            // Show profile dropdown, hide Sign In
             signinEl.classList.add('d-none');
             profileEl.classList.remove('d-none');
 
-            // Update display name
-            const nameEl = document.getElementById('userName');
-            if (nameEl) {
-                nameEl.textContent = user.displayName || user.email.split('@')[0];
+            // Set profile picture
+            if (profilePic) {
+                profilePic.src = user.photoURL || "/img/default-user.png";
+                // Optional: add onerror fallback
+                profilePic.onerror = () => { profilePic.src = "/img/default-user.png"; };
             }
         } else {
-            // Show Sign In, hide Account
+            // Show Sign In, hide profile
             signinEl.classList.remove('d-none');
             profileEl.classList.add('d-none');
         }
     });
 
-    // Global sign out function (can be called from dropdown)
+    // Global sign out (unchanged)
     window.signOut = () => {
         auth.signOut().then(() => {
             location.href = '/';

@@ -14,7 +14,7 @@ window.initProfilePictureUpload = async function () {
 
     const auth = window.firebaseAuth;
 
-    // Wait for authenticated user (handles auth state restoration delay)
+    // Wait for authenticated user
     const user = await new Promise((resolve) => {
         const unsubscribe = auth.onAuthStateChanged((u) => {
             if (u) {
@@ -31,14 +31,16 @@ window.initProfilePictureUpload = async function () {
 
     console.log("Authenticated user loaded:", user.uid);
 
-    // Load Storage functions
-    let getStorage, ref, uploadBytesResumable, getDownloadURL;
+    // Load Storage functions (add listAll and deleteObject)
+    let getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject;
     try {
         const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js');
         getStorage = storageMod.getStorage;
         ref = storageMod.ref;
         uploadBytesResumable = storageMod.uploadBytesResumable;
         getDownloadURL = storageMod.getDownloadURL;
+        listAll = storageMod.listAll;
+        deleteObject = storageMod.deleteObject;
     } catch (err) {
         console.error("Failed to load Firebase Storage:", err);
         return;
@@ -76,40 +78,59 @@ window.initProfilePictureUpload = async function () {
             previewImg.classList.add("d-none");
             return;
         }
-
         if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
             statusEl.textContent = file.type.startsWith("image/") ? "File too large (max 2MB)" : "Please select an image file";
             statusEl.className = "text-danger";
             uploadBtn.disabled = true;
             return;
         }
-
         const reader = new FileReader();
         reader.onload = (ev) => {
             previewImg.src = ev.target.result;
             previewImg.classList.remove("d-none");
         };
         reader.readAsDataURL(file);
-
         uploadBtn.disabled = false;
         statusEl.textContent = "";
     });
 
-    // Upload handler
+    // Upload handler with old photo deletion
     uploadBtn.addEventListener("click", async () => {
         const file = fileInput.files[0];
         if (!file) return;
 
         uploadBtn.disabled = true;
-        statusEl.textContent = "Uploading...";
+        statusEl.textContent = "Preparing upload...";
         statusEl.className = "text-muted";
 
         try {
             const storage = getStorage(window.firebaseApp);
             const ext = file.name.split('.').pop() || 'jpg';
-            const storageRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
+            const userFolderRef = ref(storage, `profile-pictures/${user.uid}`);
 
-            const uploadTask = uploadBytesResumable(storageRef, file);
+            // Step 1: List all files in the user's folder
+            const folderSnapshot = await listAll(userFolderRef);
+
+            // Step 2: Delete any file that starts with "photo."
+            for (const itemRef of folderSnapshot.items) {
+                if (itemRef.name.toLowerCase().startsWith("photo.")) {
+                    try {
+                        await deleteObject(itemRef);
+                        console.log(`Deleted old file: ${itemRef.name}`);
+                    } catch (deleteErr) {
+                        if (deleteErr.code === 'storage/object-not-found') {
+                            console.log(`No old file to delete (already gone): ${itemRef.name}`);
+                        } else {
+                            // console.warn(`Failed to delete ${itemRef.name}:`, deleteErr.message);
+                        }
+                        // Always continue — never block the new upload
+                    }
+                }
+            }
+
+            // Step 3: Upload the new file
+            const newFileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
+            const uploadTask = uploadBytesResumable(newFileRef, file);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
@@ -124,7 +145,6 @@ window.initProfilePictureUpload = async function () {
                 },
                 async () => {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
                     await updateProfile(user, { photoURL: downloadURL });
 
                     currentPic.src = downloadURL + '?t=' + Date.now();
@@ -136,6 +156,7 @@ window.initProfilePictureUpload = async function () {
                     statusEl.className = "text-success";
                 }
             );
+
         } catch (err) {
             console.error("Upload setup failed:", err);
             statusEl.textContent = "Error: " + (err.message || "failed to start upload");
@@ -145,7 +166,7 @@ window.initProfilePictureUpload = async function () {
     });
 };
 
-// Call on page load (safe even if called multiple times)
+// Call on page load
 document.addEventListener("DOMContentLoaded", () => {
     window.initProfilePictureUpload?.();
 });

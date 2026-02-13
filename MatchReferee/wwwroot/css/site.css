@@ -1,9 +1,10 @@
-﻿/* Increase base font size globally */
+﻿@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+
+/* Increase base font size globally */
 :root {
     font-size: 1.1rem; /* 17.6px (default is 16px) */
 }
 
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
 /* Ensure body is a flex container that fills viewport height */
 body {
@@ -89,6 +90,65 @@ nav {
 
 .brand-red {
     background-color: #832e1f;
+}
+
+/* Text colours */
+.text-brand-green {
+    color: #396107 !important;
+}
+
+.text-brand-yellow {
+    color: #c9c14a !important;
+}
+
+.text-brand-blue {
+    color: #075861 !important;
+}
+
+.text-brand-red {
+    color: #832e1f !important;
+}
+
+/* Border colours */
+.border-brand-green {
+    border-color: #396107 !important;
+}
+
+.border-brand-yellow {
+    border-color: #c9c14a !important;
+}
+
+.border-brand-blue {
+    border-color: #075861 !important;
+}
+
+.border-brand-red {
+    border-color: #832e1f !important;
+}
+
+/* Optional: Background + text combinations for buttons or cards */
+.btn-brand-green {
+    background-color: #396107;
+    border-color: #396107;
+    color: white;
+}
+
+    .btn-brand-green:hover {
+        background-color: #2e5306;
+        border-color: #2e5306;
+    }
+
+/* Optional: subtle hover effect on cards using brand colours */
+.card:hover .border-brand-green {
+    border-color: #396107 !important;
+}
+
+.card:hover .border-brand-yellow {
+    border-color: #c9c14a !important;
+}
+
+.card:hover .border-brand-blue {
+    border-color: #075861 !important;
 }
 /* COMPLEMENTARY - PURPLE */
 .brand-purple {
@@ -309,3 +369,96 @@ nav {
         transform: translateY(-3px);
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
+
+/* Align the dropdown button to the centre when menu is collapsed */
+.dropdown-toggle {
+    text-align: center;
+}
+
+/* White dropdown arrow for .dropdown-toggle in navbar */
+.navbar .dropdown-toggle::after {
+    border-top-color: white !important; /* top arrow */
+    border-bottom-color: white !important; /* fallback */
+}
+
+/* Optional: stronger override if using dark navbar */
+.navbar-dark .dropdown-toggle::after,
+.navbar .text-white.dropdown-toggle::after {
+    border-top-color: white !important;
+}
+
+/* Dark dropdown menu with white text */
+.dropdown-menu {
+    background-color: #111111; /* Dark grey (Bootstrap's bg-dark equivalent) */
+    border: 1px solid #222222; /* Slightly lighter border for definition */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5); /* deeper shadow for depth */
+    border-radius: 0;
+}
+
+/* Dropdown items */
+.dropdown-item {
+    color: #ffffff; /* White text */
+}
+
+    /* Hover / focus state */
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: #222222; /* Slightly lighter grey on hover */
+        color: #ffffff;
+    }
+
+    /* Active / selected item (if any) */
+    .dropdown-item.active,
+    .dropdown-item:active {
+        background-color: #0d6efd; /* Bootstrap primary blue, or change to your accent color */
+        color: #ffffff;
+    }
+
+/* Divider line inside dropdown */
+.dropdown-divider {
+    border-top: 1px solid #222222; /* Visible but subtle divider */
+}
+
+/* Optional: Make caret/arrow white too (if not already) */
+.dropdown-toggle::after {
+    border-top-color: #ffffff !important;
+}
+
+/* Customize navbar-toggler: white border and white hamburger icon */
+.navbar-toggler {
+    border: 1px solid white !important; /* white border */
+    border-radius: 0.25rem; /* optional: keep rounded corners */
+}
+
+/* White hamburger icon (the three lines) */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Optional: hover/focus effect for better UX */
+.navbar-toggler:hover,
+.navbar-toggler:focus {
+    background-color: rgba(255, 255, 255, 0.1); /* subtle white overlay on hover */
+    border-color: white;
+}
+
+/* Optional: make sure it looks good in dark navbar */
+.navbar-dark .navbar-toggler {
+    border-color: white !important;
+}
+
+/* Remove dark/thick border, shadow or outline when clicked/active/focused/expanded */
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler[aria-expanded="true"],
+.navbar-toggler:focus-visible {
+    border-color: white !important; /* keep your white border */
+    box-shadow: none !important; /* kill Bootstrap focus ring */
+    outline: none !important; /* remove browser outline */
+    background-color: rgba(255, 255, 255, 0.1) !important; /* subtle feedback instead */
+}
+
+/* Optional: even stronger reset if Bootstrap still fights back */
+.navbar-toggler:not(:hover):not(:focus):not(:active) {
+    box-shadow: none !important;
+}

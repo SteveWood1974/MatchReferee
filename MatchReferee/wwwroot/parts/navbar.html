@@ -1,33 +1,48 @@
-﻿<div class="container">
+﻿<div class="container align-items-center">
     <a class="navbar-brand text-white sansation-bold" href="/">
         <img src="/img/favicon.png" alt="Match Referee Logo" class="me-2" width="30">
         Match Referee
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
+
+    <!-- Right side: Account/Sign In + Toggler – always visible -->
+    <div class="d-flex align-items-center ms-auto order-lg-2">
+
+        <!-- Account dropdown (always visible) -->
+        <div class="dropdown me-3" id="profile">
+            <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img id="navbarProfilePic"
+                     src="/img/default-user.png"
+                     alt="Profile"
+                     class="rounded-circle"
+                     width="32" height="32"
+                     style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;">
+                <span id="userName" class="visually-hidden">Account</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                <li><a class="dropdown-item" href="/secure/profile">Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="signOut()">Sign Out</a></li>
+            </ul>
+        </div>
+
+        <!-- Sign In (shown when not logged in, always visible) -->
+        <a class="nav-link text-white me-3" href="/signin" id="signin" style="margin-left: 9px;">Sign In</a>
+
+        <!-- Hamburger toggler (always visible on mobile) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+
+    <!-- Collapsible main menu (only Home/About + divider) -->
+    <div class="collapse navbar-collapse order-lg-1" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
             <li id="home" class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
             <li id="about" class="nav-item"><a class="nav-link text-white" href="/about">About</a></li>
-
-            <!-- Sign In (shown when logged out) -->
-            <li id="signin" class="nav-item">
-                <a class="nav-link text-white" href="/signin">Sign In</a>
-            </li>
-
-            <!-- Account dropdown (shown when logged in) -->
-            <li id="profile" class="nav-item dropdown d-none">
-                <a class="nav-link text-white dropdown-toggle" href="#" id="accountDropdown"
-                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Account
-                    <span id="userName"></span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                    <li><a class="dropdown-item" href="/secure/profile">Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" onclick="window.signOut(); return false;">Sign Out</a></li>
-                </ul>
+            <!-- Vertical divider – only on large screens -->
+            <li class="nav-item d-none d-lg-flex align-items-center">
+                <div class="vr bg-white opacity-75 mx-2 my-auto" style="height: 1.25rem;"></div>
             </li>
         </ul>
     </div>
