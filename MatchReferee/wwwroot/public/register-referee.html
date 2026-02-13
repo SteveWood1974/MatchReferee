@@ -67,19 +67,30 @@
 
             try {
                 window.setButtonLoading(document.getElementById('btn'), true);
-                const { createUserWithEmailAndPassword, sendEmailVerification } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-                const cred = await createUserWithEmailAndPassword(window.firebaseAuth, email, pwd);
-                console.log(cred);
-                await sendEmailVerification(cred.user);
-                const token = await cred.user.getIdToken();
 
+                const { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+
+                const cred = await createUserWithEmailAndPassword(window.firebaseAuth, email, pwd);
+                const user = cred.user;
+
+                // *** THIS IS THE MISSING LINE ***
+                await updateProfile(user, {
+                    displayName: name.trim()
+                });
+
+                // Optional: reload user to make sure displayName is fresh
+                await user.reload();
+
+                await sendEmailVerification(user);
+
+                const token = await user.getIdToken();
                 const resp = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         IdToken: token,
                         Name: name,
-                        Address: '',  // Not collected here
+                        Address: '', // Not collected here
                         AffiliationNumber: affil,
                         Role: role.toLowerCase()
                     })
@@ -87,7 +98,7 @@
 
                 if (!resp.ok) throw new Error(await resp.text());
 
-                // Success: redirect to profile completion
+                // Success
                 alert('Check your email to verify. Now complete your profile.');
                 location.href = '/secure/profile';
 

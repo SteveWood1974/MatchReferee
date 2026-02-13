@@ -37,13 +37,18 @@
                             <h5>Profile Picture</h5>
 
                             <!-- Current photo (updates after save) -->
-                            <img id="currentProfilePic"
-                                 src="/img/default-user.png"
-                                 alt="Profile picture"
-                                 class="rounded-circle mb-3"
-                                 width="150" height="150"
-                                 style="object-fit: cover;"
-                                 onerror="this.src='/img/default-user.png'">
+                            <div class="relative inline-block mx-auto overflow-hidden rounded-full" style="width: 150px; height: 150px; box-shadow: 0 0 0 3px #ddd;">
+                                <img id="currentProfilePic"
+                                     alt="Profile picture"
+                                     class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
+                                     onerror="this.src='/img/default-user.png'">
+
+                                <div id="photoLoader" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-10 transition-opacity duration-500">
+                                    <div class="spinner-border text-brand-green" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- File input + preview -->
                             <div class="mb-3">
@@ -160,12 +165,21 @@
             const loadingEl = document.getElementById('loading');
             const contentEl = document.getElementById('profileContent');
 
+            if (!loadingEl || !contentEl) {
+                console.error("Loading or content element missing");
+                return;
+            }
+
+            loadingEl.classList.remove('d-none');
+            contentEl.classList.add('d-none');
+            if (errorEl) errorEl.classList.add('d-none');
+
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     location.href = '/signin';
                     return;
                 }
-                console.log(user)
+                console.log("User authenticated:", user.uid);
 
                 try {
                     // Show Firebase basics immediately
@@ -179,6 +193,7 @@
                         : 'badge bg-warning';
 
                     // Fetch profile data
+                    console.log("Fetching /api/profile...");
                     const token = await user.getIdToken();
                     const resp = await fetch('/api/profile', {
                         headers: { 'Authorization': `Bearer ${token}` }
@@ -190,6 +205,7 @@
                     }
 
                     const profile = await resp.json();
+                    console.log("Profile data loaded:", profile);
 
                     document.getElementById('role').textContent = profile.Role
                         ? profile.Role.charAt(0).toUpperCase() + profile.Role.slice(1)
@@ -209,15 +225,21 @@
                         document.getElementById('joinedDate').textContent = '—';
                     }
 
-                    // Success
+                    // Success - hide loading, show content
                     loadingEl.classList.add('d-none');
                     contentEl.classList.remove('d-none');
 
                 } catch (err) {
                     console.error('Profile load error:', err);
-                    errorEl.textContent = 'Could not load profile details. ' + (err.message || 'Please try again.');
-                    errorEl.classList.remove('d-none');
+                    if (errorEl) {
+                        errorEl.textContent = 'Could not load profile details. ' + (err.message || 'Please try again.');
+                        errorEl.classList.remove('d-none');
+                    }
                     loadingEl.innerHTML = '<p class="text-danger">Error loading profile</p>';
+                } finally {
+                    setTimeout(() => {
+                        loadingEl.classList.add('d-none');
+                    }, 10000);
                 }
             });
         });

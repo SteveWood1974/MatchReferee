@@ -1,7 +1,7 @@
 ﻿// =============================================================
-//  wwwroot/js/common.js
-//  Reusable across all pages
-//  Load with: <script src="/js/common.js"></script>
+// wwwroot/js/common.js
+// Reusable across all pages
+// Load with: <script src="/js/common.js"></script>
 // =============================================================
 
 let firebaseApp = null;
@@ -24,7 +24,7 @@ window.initFirebase = async function () {
         firebaseApp = initializeApp(cfg);
         firebaseAuth = getAuth(firebaseApp);
 
-        window.firebaseApp = firebaseApp;     // ← Add this line
+        window.firebaseApp = firebaseApp;
         window.firebaseAuth = firebaseAuth;
         window.dispatchEvent(new Event('firebaseReady'));
 
@@ -65,35 +65,63 @@ window.setupNavbarAuth = async function () {
     const profileEl = document.getElementById('profile');
     const profilePic = document.getElementById('navbarProfilePic');
 
-    if (!signinEl || !profileEl) return;
+    if (!signinEl || !profileEl) {
+        console.warn("Signin or profile element missing in navbar");
+        return;
+    }
 
-    auth.onAuthStateChanged(user => {
-        if (user && user.emailVerified) {
-            // Show profile dropdown, hide Sign In
+    // CRITICAL: BOTH start hidden and STAY hidden until we know the real state
+    signinEl.classList.add('d-none');
+    profileEl.classList.add('d-none');
+
+    // Function to update UI
+    const updateUI = (user) => {
+        console.log("updateUI - user exists:", !!user, "verified:", user?.emailVerified);
+
+        if (user) {
+            // Logged in (verified or not) → show Account
             signinEl.classList.add('d-none');
             profileEl.classList.remove('d-none');
 
-            // Set profile picture
             if (profilePic) {
                 profilePic.src = user.photoURL || "/img/default-user.png";
-                // Optional: add onerror fallback
                 profilePic.onerror = () => { profilePic.src = "/img/default-user.png"; };
             }
         } else {
-            // Show Sign In, hide profile
+            // Not logged in → show Sign In
             signinEl.classList.remove('d-none');
             profileEl.classList.add('d-none');
         }
+    };
+
+    // Wait for the FIRST real auth callback (this ensures we have the final state)
+    const firstUser = await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe(); // only listen once for initial state
+            resolve(user);
+        });
     });
 
-    // Global sign out (unchanged)
-    window.signOut = () => {
-        auth.signOut().then(() => {
-            location.href = '/';
-        }).catch(err => {
-            console.error('Sign out failed:', err);
-        });
-    };
+    // Apply the correct state immediately
+    updateUI(firstUser);
+
+    // Keep listening for future changes (login/logout)
+    auth.onAuthStateChanged(updateUI);
+
+    // Listen for profile photo updates (dispatched from profile page)
+    window.addEventListener('profilePhotoUpdated', (e) => {
+        const tryUpdate = () => {
+            const profilePic = document.getElementById('navbarProfilePic');
+            if (profilePic && e.detail?.photoURL) {
+                profilePic.src = e.detail.photoURL + '?t=' + Date.now();
+                console.log("Navbar avatar updated");
+            } else {
+                // Retry once if element not ready
+                setTimeout(tryUpdate, 300);
+            }
+        };
+        tryUpdate();
+    });
 };
 
 /**
@@ -109,7 +137,6 @@ window.loadNavbar = function () {
             const navbarEl = document.getElementById('navbar');
             if (navbarEl) {
                 navbarEl.innerHTML = html;
-
                 // IMPORTANT: Call auth setup after navbar is inserted
                 if (typeof window.setupNavbarAuth === 'function') {
                     window.setupNavbarAuth();
@@ -200,4 +227,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-

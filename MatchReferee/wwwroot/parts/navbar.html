@@ -8,15 +8,16 @@
     <div class="d-flex align-items-center ms-auto order-lg-2">
 
         <!-- Account dropdown (always visible) -->
-        <div class="dropdown me-3" id="profile">
+        <div class="dropdown me-3  d-none" id="profile">
             <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown"
                role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <img id="navbarProfilePic"
-                     src="/img/default-user.png"
                      alt="Profile"
-                     class="rounded-circle"
+                     class="rounded-circle opacity-0 transition-opacity duration-300"
                      width="32" height="32"
-                     style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;">
+                     style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;"
+                     onload="this.classList.remove('opacity-0'); this.classList.add('opacity-100');"
+                     onerror="this.src='/img/default-user.png'; this.classList.remove('opacity-0'); this.classList.add('opacity-100');">
                 <span id="userName" class="visually-hidden">Account</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
@@ -27,7 +28,7 @@
         </div>
 
         <!-- Sign In (shown when not logged in, always visible) -->
-        <a class="nav-link text-white me-3" href="/signin" id="signin" style="margin-left: 9px;">Sign In</a>
+        <a class="nav-link text-white me-3 d-none" href="/signin" id="signin" style="margin-left: 9px;">Sign In</a>
 
         <!-- Hamburger toggler (always visible on mobile) -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

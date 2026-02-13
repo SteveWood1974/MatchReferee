@@ -31,7 +31,7 @@ window.initProfilePictureUpload = async function () {
 
     console.log("Authenticated user loaded:", user.uid);
 
-    // Load Storage functions (add listAll and deleteObject)
+    // Load Storage functions
     let getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject;
     try {
         const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js');
@@ -56,18 +56,50 @@ window.initProfilePictureUpload = async function () {
         return;
     }
 
-    // DOM elements
+    // DOM elements - declare early
     const fileInput = document.getElementById("profilePictureInput");
     const previewImg = document.getElementById("imagePreview");
     const uploadBtn = document.getElementById("uploadProfilePicBtn");
     const statusEl = document.getElementById("uploadStatus");
     const currentPic = document.getElementById("currentProfilePic");
+    const photoLoader = document.getElementById("photoLoader");
 
-    // Show current photo if exists
+    // Safety check for photo elements
+    if (!currentPic || !photoLoader) {
+        console.error("Current profile pic or loader element not found");
+        return;
+    }
+
+    // Show current photo if exists - with delay & load detection
+    currentPic.classList.add('opacity-0'); // start hidden
+
     if (user.photoURL) {
-        currentPic.src = user.photoURL + '?t=' + Date.now();
+        const photoUrl = user.photoURL + '?t=' + Date.now();
+        currentPic.src = photoUrl;
+
+        currentPic.onload = () => {
+            photoLoader.classList.add('hidden');
+            setTimeout(() => {
+                currentPic.classList.remove('opacity-0');
+                currentPic.classList.add('opacity-100');
+            }, 400);
+        };
+
+        currentPic.onerror = () => {
+            currentPic.src = "/img/default-user.png";
+            photoLoader.classList.add('hidden');
+            setTimeout(() => {
+                currentPic.classList.remove('opacity-0');
+                currentPic.classList.add('opacity-100');
+            }, 400);
+        };
     } else {
         currentPic.src = "/img/default-user.png";
+        photoLoader.classList.add('hidden');
+        setTimeout(() => {
+            currentPic.classList.remove('opacity-0');
+            currentPic.classList.add('opacity-100');
+        }, 400);
     }
 
     // Preview on file select
@@ -108,10 +140,8 @@ window.initProfilePictureUpload = async function () {
             const ext = file.name.split('.').pop() || 'jpg';
             const userFolderRef = ref(storage, `profile-pictures/${user.uid}`);
 
-            // Step 1: List all files in the user's folder
+            // Delete old photo files
             const folderSnapshot = await listAll(userFolderRef);
-
-            // Step 2: Delete any file that starts with "photo."
             for (const itemRef of folderSnapshot.items) {
                 if (itemRef.name.toLowerCase().startsWith("photo.")) {
                     try {
@@ -121,14 +151,13 @@ window.initProfilePictureUpload = async function () {
                         if (deleteErr.code === 'storage/object-not-found') {
                             console.log(`No old file to delete (already gone): ${itemRef.name}`);
                         } else {
-                            // console.warn(`Failed to delete ${itemRef.name}:`, deleteErr.message);
+                            console.warn(`Failed to delete ${itemRef.name}:`, deleteErr.message);
                         }
-                        // Always continue — never block the new upload
                     }
                 }
             }
 
-            // Step 3: Upload the new file
+            // Upload new file
             const newFileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
             const uploadTask = uploadBytesResumable(newFileRef, file);
 
@@ -151,12 +180,17 @@ window.initProfilePictureUpload = async function () {
                     previewImg.classList.add("d-none");
                     fileInput.value = "";
                     uploadBtn.disabled = true;
-
                     statusEl.textContent = "Profile picture updated successfully!";
                     statusEl.className = "text-success";
+
+                    // Notify navbar to update avatar
+                    console.log("Upload success - dispatching profilePhotoUpdated event");
+                    console.log("New photoURL:", downloadURL);
+                    window.dispatchEvent(new CustomEvent('profilePhotoUpdated', {
+                        detail: { photoURL: downloadURL }
+                    }));
                 }
             );
-
         } catch (err) {
             console.error("Upload setup failed:", err);
             statusEl.textContent = "Error: " + (err.message || "failed to start upload");

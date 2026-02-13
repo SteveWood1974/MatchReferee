@@ -113,7 +113,7 @@
                 const user = userCredential.user;
 
                 // Check profile completion status
-                let redirectPath = '/secure/landing'; // default
+                let redirectPath = '/secure/profile'; // default
 
                 try {
                     const token = await user.getIdToken();
