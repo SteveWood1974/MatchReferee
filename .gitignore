@@ -387,3 +387,5 @@ FIREBASE_CREDENTIALS_JSON
 bin/
 obj/
 wwwroot/dist/
+/MatchReferee/wwwroot/templates/default-public-page.html
+/MatchReferee/wwwroot/templates/default-secure-page.html
