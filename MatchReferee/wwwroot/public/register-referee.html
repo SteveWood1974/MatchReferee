@@ -41,16 +41,30 @@
         </div>
     </main>
 
-    <footer class="bg-dark text-white py-3 mt-auto">
-        <div class="container text-center">© 2025 Match Referee</div>
-    </footer>
+    <!-- Footer -->
+    <div id="footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/common.js"></script>
     <script>
         window.loadNavbar();
         window.loadFooter();
+        window.setupNavbarAuth?.();
+
+
         window.initFirebasePage(() => {
+
+            // Check if user is already signed in → redirect to secure landing
+            firebaseAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is authenticated → redirect immediately
+                    console.log('User already signed in, redirecting to /secure/landing');
+                    location.href = '/secure/landing';
+                }
+                // If no user → stay on sign-in page (normal flow)
+            });
+
+
             document.getElementById('btn').disabled = false;
             document.getElementById('btn').onclick = () => register('Referee');
         });

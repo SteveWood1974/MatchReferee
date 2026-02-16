@@ -1,6 +1,5 @@
 ﻿// wwwroot/js/profile.js
 // Load with: <script type="module" src="/js/profile.js"></script>
-
 window.initProfilePictureUpload = async function () {
     // Ensure Firebase is initialized
     if (!window.firebaseAuth || !window.firebaseApp) {
@@ -56,47 +55,41 @@ window.initProfilePictureUpload = async function () {
     const uploadBtn = document.getElementById("uploadProfilePicBtn");
     const statusEl = document.getElementById("uploadStatus");
     const currentPic = document.getElementById("currentProfilePic");
+
+    // Safety check: if critical elements are missing, exit gracefully (fixes null errors)
+    if (!fileInput || !statusEl || !currentPic) {
+        console.warn("Required photo elements missing – skipping photo upload init");
+        return;
+    }
+
     // Show current photo if exists
     if (user.photoURL) {
         currentPic.src = user.photoURL + '?t=' + Date.now();
     } else {
         currentPic.src = "/img/default-user.png";
     }
-    // Preview on file select
-    fileInput.addEventListener("change", (e) => {
+
+    // Immediate upload on file select
+    fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (!file) {
-            uploadBtn.disabled = true;
-            previewImg.classList.add("d-none");
+            statusEl.textContent = "";
             return;
         }
+
         if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
-            statusEl.textContent = file.type.startsWith("image/") ? "File too large (max 2MB)" : "Please select an image file";
+            statusEl.textContent = file.type.startsWith("image/") ? 'File too large (max 2MB)' : 'Please select an image file';
             statusEl.className = "text-danger";
-            uploadBtn.disabled = true;
             return;
         }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            previewImg.src = ev.target.result;
-            previewImg.classList.remove("d-none");
-        };
-        reader.readAsDataURL(file);
-        uploadBtn.disabled = false;
-        statusEl.textContent = "";
-    });
-    // Upload handler with old photo deletion
-    uploadBtn.addEventListener("click", async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-        uploadBtn.disabled = true;
+
         statusEl.textContent = "Preparing upload...";
         statusEl.className = "text-muted";
+
         try {
             const storage = getStorage(window.firebaseApp);
             const ext = file.name.split('.').pop() || 'jpg';
             const userFolderRef = ref(storage, `profile-pictures/${user.uid}`);
-
             // Delete old photo files - check existence first to avoid error
             const folderSnapshot = await listAll(userFolderRef);
             for (const itemRef of folderSnapshot.items) {
@@ -105,15 +98,12 @@ window.initProfilePictureUpload = async function () {
                         await deleteObject(itemRef);
                         console.log(`Deleted old file: ${itemRef.name}`);
                     } catch (deleteErr) {
-                        // Ignore all errors on delete - Firebase ignores missing files
-                        // Only log real failures if needed
                         if (deleteErr.code !== 'storage/object-not-found') {
                             console.warn(`Failed to delete ${itemRef.name}:`, deleteErr.message);
                         }
                     }
                 }
             }
-
             // Upload new file
             const newFileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
             const uploadTask = uploadBytesResumable(newFileRef, file);
@@ -126,15 +116,11 @@ window.initProfilePictureUpload = async function () {
                     console.error("Upload error:", error);
                     statusEl.textContent = "Upload failed: " + (error.message || "unknown");
                     statusEl.className = "text-danger";
-                    uploadBtn.disabled = false;
                 },
                 async () => {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                     await updateProfile(user, { photoURL: downloadURL });
                     currentPic.src = downloadURL + '?t=' + Date.now();
-                    previewImg.classList.add("d-none");
-                    fileInput.value = "";
-                    uploadBtn.disabled = true;
                     statusEl.textContent = "Profile picture updated successfully!";
                     statusEl.className = "text-success";
                     // Notify navbar to update avatar
@@ -143,16 +129,17 @@ window.initProfilePictureUpload = async function () {
                     window.dispatchEvent(new CustomEvent('profilePhotoUpdated', {
                         detail: { photoURL: downloadURL }
                     }));
+                    fileInput.value = "";
                 }
             );
         } catch (err) {
             console.error("Upload setup failed:", err);
             statusEl.textContent = "Error: " + (err.message || "failed to start upload");
             statusEl.className = "text-danger";
-            uploadBtn.disabled = false;
         }
     });
 };
+
 // Call on page load
 document.addEventListener("DOMContentLoaded", () => {
     window.initProfilePictureUpload?.();
