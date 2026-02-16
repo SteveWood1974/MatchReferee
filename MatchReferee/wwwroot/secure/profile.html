@@ -10,11 +10,48 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        #unsavedBanner {
+            position: fixed;
+            top: 60px; /* Matches your navbar min-height */
+            left: 0;
+            right: 0;
+            z-index: 1040; /* Below navbar (1050+), above content */
+            background-color: rgba(255, 193, 7, 0.15);
+            border-bottom: 1px solid #ffc107;
+            transition: opacity 0.3s ease;
+        }
+
+            #unsavedBanner .btn-link {
+                font-size: 0.875rem;
+                padding: 0;
+            }
+
+        @media (max-width: 576px) {
+            #unsavedBanner {
+                font-size: 0.85rem;
+                padding: 0.4rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100 sansation-regular">
     <main class="flex-grow-1">
         <!-- Navigation -->
         <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center" style="min-height: 60px;"></nav>
+
+        <!-- Unsaved Changes Banner (fixed just below navbar) -->
+        <div id="unsavedBanner" class="alert alert-warning py-2 px-3 mb-0 d-none text-center" role="alert">
+            <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap">
+                <small class="text-warning fw-medium">
+                    <i class="fas fa-exclamation-triangle me-1"></i> You have unsaved changes
+                </small>
+                <button type="button" class="btn btn-sm btn-link text-warning text-decoration-underline p-0" onclick="document.getElementById('profileEditForm').dispatchEvent(new Event('submit'));">
+                    Save Now
+                </button>
+            </div>
+        </div>
+
         <!-- Hero Section -->
         <section class="bg-football text-white d-flex align-items-center">
             <div class="container text-center">
@@ -22,219 +59,225 @@
                 <p class="lead mb-5">Update your details to get more matches and better visibility</p>
             </div>
         </section>
+
         <!-- Main Content -->
         <section id="main" class="py-5">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-12">
-                        <form id="profileEditForm">
-                            <!-- Panel 1: Profile Picture & Header -->
-                            <div class="card shadow mb-4 border-brand-green">
-                                <div class="card-header brand-green text-white text-center py-4">
-                                    <h3 id="displayNameHeader" class="mb-2">Loading...</h3>
-                                    <p class="text-white mb-4 small" style="margin-bottom: 0px !important;" id="emailHeader"></p>
-                                </div>
-                                <!-- Loading overlay -->
-                                <div id="loading" class="text-center my-5">
-                                    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
-                                    <p class="mt-3 text-muted">Loading your profile...</p>
-                                </div>
-                                <div class="card-body text-center p-4 p-md-5">
-                                    
-                                    <!-- Photo area with camera icon attached -->
-                                    <div class="photo-wrapper mb-4">
-                                        <img id="currentProfilePic"
-                                             alt="Profile picture"
-                                             src="/img/empty-user.png"
-                                             onerror="this.src='/img/default-user.png'">
-                                        <!-- Camera icon attached to the photo -->
-                                        <label for="profilePictureInput">
-                                            <i class="fas fa-camera"></i>
-                                        </label>
-                                        <!-- Hidden file input -->
-                                        <input type="file" id="profilePictureInput" accept="image/*" class="d-none">
-                                    </div>
-                                    <p class="text-muted small mb-2">
-                                        Click the camera icon to update your profile photo (max 2MB)
-                                    </p>
-                                    <p id="uploadStatus" class="small mt-2"></p>
-                                </div>
-                            </div>
-                            <!-- Main form content -->
-                            <div id="profileContent" class="d-none">
-                                <!-- Panel 2: Basic Account Details -->
-                                <div class="card shadow mb-4 border-brand-green">
-                                    <div class="card-header brand-green text-white">
-                                        <h5 class="mb-0">Basic Information</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="editFullName" name="fullName" required>
+                    <div class="col-12 col-lg-10">
+
+                        <!-- Loading state – visible until profile loads -->
+                        <div id="loading" class="text-center my-5">
+                            <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
+                            <p class="mt-3 text-muted">Loading your profile...</p>
+                        </div>
+
+                        <!-- All editable content – hidden until loaded -->
+                        <div id="profileContent" class="d-none">
+                            <form id="profileEditForm">
+
+                                <!-- Tabs Navigation -->
+                                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="false">Billing</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="referee-tab" data-bs-toggle="tab" data-bs-target="#referee" type="button" role="tab" aria-controls="referee" aria-selected="false">Referee</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="coach-tab" data-bs-toggle="tab" data-bs-target="#coach" type="button" role="tab" aria-controls="coach" aria-selected="false">Coach</button>
+                                    </li>
+                                </ul>
+
+                                <!-- Tab Content -->
+                                <div class="tab-content" id="profileTabContent">
+                                    <!-- General Tab -->
+                                    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                                        <!-- Merged Panel: Profile Picture + Basic Information -->
+                                        <div class="card shadow-lg mb-4 profile-card-wrapper">
+                                            <div class="card-header profile-card-header text-white text-center py-4">
+                                                <h3 id="displayNameHeader" class="mb-2">Loading...</h3>
+                                                <p class="text-white mb-0 small" id="emailHeader"></p>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Email Address</label>
-                                                <input type="email" class="form-control" id="editEmail" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Panel 3: Contact & Location -->
-                                <div class="card shadow mb-4 border-brand-green">
-                                    <div class="card-header brand-green text-white">
-                                        <h5 class="mb-0">Contact & Location</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Phone Number</label>
-                                                <input type="tel" class="form-control" id="editPhone" name="phoneNumber">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Postcode / Area</label>
-                                                <input type="text" class="form-control" id="editPostcode" name="postcode">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Panel 4: Role & Affiliation -->
-                                <div class="card shadow mb-4 border-brand-green">
-                                    <div class="card-header brand-green text-white">
-                                        <h5 class="mb-0">Role & Affiliation</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Primary Role <span class="text-danger">*</span></label>
-                                                <select class="form-select" id="editRole" name="role">
-                                                    <option value="Referee">Referee</option>
-                                                    <option value="Coach">Coach</option>
-                                                    <option value="Club">Club</option>
-                                                    <option value="League">League</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Affiliation / Registration Number</label>
-                                                <input type="text" class="form-control" id="editAffiliationNumber" name="affiliationNumber">
-                                            </div>
-                                        </div>
-                                        <div id="editRefereeSection" class="mt-4 d-none">
-                                            <div class="border rounded p-3 bg-light">
-                                                <h6 class="text-success mb-3">Referee Specific Details</h6>
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">Referee Level / Grade</label>
-                                                        <input type="text" class="form-control" id="editRefereeLevel" name="refereeLevel">
+                                            <div class="card-body p-4 p-md-5">
+                                                <div class="row g-4 align-items-center">
+                                                    <!-- Left: Photo -->
+                                                    <div class="col-lg-5 text-center">
+                                                        <div class="photo-wrapper mb-4 mx-auto">
+                                                            <img id="currentProfilePic"
+                                                                 alt="Profile picture"
+                                                                 src="/img/empty-user.png"
+                                                                 onerror="this.src='/img/default-user.png'">
+                                                            <label for="profilePictureInput"
+                                                                   class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                                                                   style="width: 48px; height: 48px; cursor: pointer; border: 4px solid white; transform: translate(30%, 30%);">
+                                                                <i class="fas fa-camera"></i>
+                                                            </label>
+                                                            <input type="file" id="profilePictureInput" accept="image/*" class="d-none">
+                                                        </div>
+                                                        <p class="text-muted small mb-2">
+                                                            Click the camera icon to update your profile photo (max 2MB)
+                                                        </p>
+                                                        <p id="uploadStatus" class="small mt-2"></p>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">Years of Experience</label>
-                                                        <input type="number" class="form-control" id="editYearsExperience" name="yearsExperience" min="0">
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label">Regions / Areas Willing to Cover (comma separated)</label>
-                                                        <input type="text" class="form-control" id="editRegions" name="regions">
+
+                                                    <!-- Right: Basic Information -->
+                                                    <div class="col-lg-7">
+                                                        <h5 class="text-success mb-3 d-lg-none">Basic Information</h5>
+                                                        <div class="row g-3">
+                                                            <div class="col-12">
+                                                                <label for="editFullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" id="editFullName" name="fullName" required>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label for="editEmail" class="form-label">Email Address</label>
+                                                                <input type="email" class="form-control" id="editEmail" readonly>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <!-- Panel 5: Personal Details -->
-                                <div class="card shadow mb-4 border-brand-green">
-                                    <div class="card-header brand-green text-white">
-                                        <h5 class="mb-0">Personal Details (optional)</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Age Range</label>
-                                                <select class="form-select" id="editAgeRange" name="ageRange">
-                                                    <option value="">Prefer not to say</option>
-                                                    <option value="14-15">14-15</option>
-                                                    <option value="16-17">16-17</option>
-                                                    <option value="18-24">18–24</option>
-                                                    <option value="25-34">25–34</option>
-                                                    <option value="35-44">35–44</option>
-                                                    <option value="45-54">45–54</option>
-                                                    <option value="55-64">55–64</option>
-                                                    <option value="65+">65+</option>
-                                                </select>
+
+                                        <!-- Panel 3: Contact & Location -->
+                                        <div class="card shadow mb-4 profile-card-wrapper">
+                                            <div class="card-header profile-card-header text-white">
+                                                <h5 class="mb-0">Contact & Location</h5>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Gender</label>
-                                                <select class="form-select" id="editGender" name="gender">
-                                                    <option value="">Prefer not to say</option>
-                                                    <option value="Male">Male</option>
-                                                    <option value="Female">Female</option>
-                                                    <option value="Non-binary">Non-binary</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editPhone" class="form-label">Phone Number</label>
+                                                        <input type="tel" class="form-control" id="editPhone" name="phoneNumber">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="editPostcode" class="form-label">Postcode / Area</label>
+                                                        <input type="text" class="form-control" id="editPostcode" name="postcode">
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-12">
-                                                <label class="form-label">Preferred Pronouns</label>
-                                                <input type="text" class="form-control" id="editPronouns" name="pronouns" placeholder="e.g. he/him, she/her, they/them">
+                                        </div>
+
+                                        <!-- Panel 5: Personal Details -->
+                                        <div class="card shadow mb-4 profile-card-wrapper">
+                                            <div class="card-header profile-card-header text-white">
+                                                <h5 class="mb-0">Personal Details (optional)</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="editAgeRange" class="form-label">Age Range</label>
+                                                        <select class="form-select" id="editAgeRange" name="ageRange">
+                                                            <option value="">Prefer not to say</option>
+                                                            <option value="14-15">14-15</option>
+                                                            <option value="16-17">16-17</option>
+                                                            <option value="18-24">18–24</option>
+                                                            <option value="25-34">25–34</option>
+                                                            <option value="35-44">35–44</option>
+                                                            <option value="45-54">45–54</option>
+                                                            <option value="55-64">55–64</option>
+                                                            <option value="65+">65+</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="editGender" class="form-label">Sex</label>
+                                                        <select class="form-select" id="editGender" name="gender">
+                                                            <option value="">Prefer not to say</option>
+                                                            <option value="Male">Male</option>
+                                                            <option value="Female">Female</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Panel 6: About You -->
+                                        <div class="card shadow mb-4 profile-card-wrapper">
+                                            <div class="card-header profile-card-header text-white">
+                                                <h5 class="mb-0">About You</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="editBio" class="form-label">Short Bio <small class="text-muted">(max 500 characters)</small></label>
+                                                    <textarea class="form-control" id="editBio" name="bio" rows="4" maxlength="500" placeholder="Tell others a bit about yourself..."></textarea>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Panel 6: About You -->
-                                <div class="card shadow mb-4 border-brand-green">
-                                    <div class="card-header brand-green text-white">
-                                        <h5 class="mb-0">About You</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Short Bio <small class="text-muted">(max 500 characters)</small></label>
-                                            <textarea class="form-control" id="editBio" name="bio" rows="4" maxlength="500" placeholder="Tell others a bit about yourself..."></textarea>
+                                    <!-- Billing Tab -->
+                                    <div class="tab-pane fade" id="billing" role="tabpanel" aria-labelledby="billing-tab">
+                                        <!-- Account Information (read-only) -->
+                                        <div class="card shadow mb-5 bg-light profile-card-wrapper">
+                                            <div class="card-header profile-card-header text-white">
+                                                <h5 class="mb-0">Account Information</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Email Verified:</strong><br><span id="verified" class="badge bg-secondary">Checking...</span></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Joined:</strong><br><span id="joinedDate">—</span></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Primary Role (system):</strong><br><span id="role">—</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Placeholder for future Billing content -->
+                                        <div class="alert alert-info">
+                                            <strong>Billing & Subscription Details</strong><br>
+                                            Coming soon – payment history, invoices, upgrade options, etc.
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Panel 7: Account Status (read-only) -->
-                                <div class="card shadow mb-5 bg-light border-0">
-                                    <div class="card-header bg-dark text-white">
-                                        <h5 class="mb-0">Account Information</h5>
+                                    <!-- Referee Tab (placeholder) -->
+                                    <div class="tab-pane fade" id="referee" role="tabpanel" aria-labelledby="referee-tab">
+                                        <div class="alert alert-info">
+                                            <strong>Referee Information</strong><br>
+                                            Referee-specific settings, levels, regions, availability, etc. (to be implemented)
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <p><strong>Email Verified:</strong><br><span id="verified" class="badge bg-secondary">Checking...</span></p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Joined:</strong><br><span id="joinedDate">—</span></p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>Primary Role (system):</strong><br><span id="role">—</span></p>
-                                            </div>
+
+                                    <!-- Coach Tab (placeholder) -->
+                                    <div class="tab-pane fade" id="coach" role="tabpanel" aria-labelledby="coach-tab">
+                                        <div class="alert alert-info">
+                                            <strong>Coach Information</strong><br>
+                                            Coach-specific settings, teams, age groups, certifications, etc. (to be implemented)
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Global Actions -->
-                                <div class="text-center mb-5">
-                                    <button type="submit" class="btn btn-brand-green btn-lg px-5 me-3">
+                                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+                                    <button type="submit" class="btn btn-brand-green btn-lg flex-fill">
                                         <i class="fas fa-save me-2"></i> Save Changes
                                     </button>
-                                    <button type="button" onclick="window.signOut()" class="btn btn-outline-danger btn-lg px-5">
+                                    <button type="button" onclick="window.signOut()" class="btn btn-outline-danger btn-lg flex-fill">
                                         <i class="fas fa-sign-out-alt me-2"></i> Sign Out
                                     </button>
-                                    <p class="mt-4">
-                                        <a href="/secure/referees/dashboard-referee.html" class="text-decoration-none text-success">
-                                            <i class="fas fa-tachometer-alt me-1"></i> Go to Dashboard
-                                        </a>
-                                    </p>
                                 </div>
+
+                                <p class="text-center mt-3">
+                                    <a href="/secure/referees/dashboard-referee.html" class="text-decoration-none text-success">
+                                        <i class="fas fa-tachometer-alt me-1"></i> Go to Dashboard
+                                    </a>
+                                </p>
 
                                 <!-- Feedback -->
                                 <p id="error" class="alert alert-danger mt-3 d-none"></p>
                                 <p id="success" class="alert alert-success mt-3 d-none">Profile updated successfully!</p>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -261,14 +304,11 @@
             const auth = window.firebaseAuth;
             const errorEl = document.getElementById('error');
             const loadingEl = document.getElementById('loading');
-            const contentEl = document.getElementById('profileContent');
-            if (!loadingEl || !contentEl) {
-                console.error("Loading or content element missing");
+            const profileContent = document.getElementById('profileContent');
+            if (!loadingEl || !profileContent) {
+                console.error("Loading or profile content element missing");
                 return;
             }
-            loadingEl.classList.remove('d-none');
-            contentEl.classList.add('d-none');
-            if (errorEl) errorEl.classList.add('d-none');
 
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
@@ -299,19 +339,10 @@
                     document.getElementById('displayNameHeader').textContent = profile.name || 'Not set';
                     document.getElementById('editPhone').value = profile.phoneNumber || '';
                     document.getElementById('editPostcode').value = profile.postcode || '';
-                    document.getElementById('editRole').value = profile.role || 'Referee';
-                    document.getElementById('editAffiliationNumber').value = profile.affiliationNumber || '';
                     document.getElementById('editAgeRange').value = profile.ageRange || '';
                     document.getElementById('editGender').value = profile.gender || '';
-                    document.getElementById('editPronouns').value = profile.pronouns || '';
                     document.getElementById('editBio').value = profile.bio || '';
-                    document.getElementById('editRefereeLevel').value = profile.refereeLevel || '';
-                    document.getElementById('editYearsExperience').value = profile.yearsExperience || '';
-                    document.getElementById('editRegions').value = profile.regions ? profile.regions.join(', ') : '';
 
-                    document.getElementById('role').textContent = profile.role
-                        ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
-                        : 'Unknown';
                     document.getElementById('subscriptionStatus').textContent = profile.subscriptionActive
                         ? 'Active' : 'Inactive';
                     document.getElementById('subscriptionStatus').className = profile.subscriptionActive
@@ -319,16 +350,12 @@
                     document.getElementById('joinedDate').textContent = profile.createdAt
                         ? new Date(profile.createdAt).toLocaleDateString('en-GB') : '—';
 
-                    if (profile.role === 'Referee') {
-                        document.getElementById('editRefereeSection').classList.remove('d-none');
-                    }
-
                     if (profile.profilePhotoUrl) {
                         document.getElementById('currentProfilePic').src = profile.profilePhotoUrl;
                     }
 
                     loadingEl.classList.add('d-none');
-                    contentEl.classList.remove('d-none');
+                    profileContent.classList.remove('d-none');
 
                 } catch (err) {
                     console.error('Profile load error:', err);
@@ -341,10 +368,25 @@
             });
         });
 
-        document.getElementById('editRole')?.addEventListener('change', (e) => {
-            document.getElementById('editRefereeSection').classList.toggle('d-none', e.target.value !== 'Referee');
-        });
+        // Track unsaved changes
+        let formChanged = false;
+        document.querySelectorAll('#profileEditForm input, #profileEditForm select, #profileEditForm textarea')
+            .forEach(el => {
+                el.addEventListener('input', () => { formChanged = true; updateBanner(); });
+                el.addEventListener('change', () => { formChanged = true; updateBanner(); });
+            });
 
+        // Show/hide slim banner
+        function updateBanner() {
+            const banner = document.getElementById('unsavedBanner');
+            if (formChanged) {
+                banner.classList.remove('d-none');
+            } else {
+                banner.classList.add('d-none');
+            }
+        }
+
+        // Form submit resets flag and hides banner on success
         document.getElementById('profileEditForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -364,6 +406,8 @@
 
                 document.getElementById('success').classList.remove('d-none');
                 document.getElementById('error').classList.add('d-none');
+                formChanged = false;
+                updateBanner(); // Hide banner
                 setTimeout(() => location.reload(), 1500);
 
             } catch (err) {

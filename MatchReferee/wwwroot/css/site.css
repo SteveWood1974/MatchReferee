@@ -69,11 +69,12 @@ nav {
     color: white !important;
 }
 
-/* Higher specificity for Bootstrap navbar */
-.navbar-expand-lg.brand-grey,
-.navbar.brand-grey {
-    background-color: #222222 !important;
-    background-image: linear-gradient(to bottom, #222222 0%, #000000 100%) !important;
+.profile-card-wrapper {
+    border: solid 1px #444444;
+}
+
+.profile-card-header {
+    background-color: #666666;
 }
 
 .brand-green {
