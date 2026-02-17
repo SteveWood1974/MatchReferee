@@ -52,17 +52,17 @@ namespace MatchReferee.Controllers
                 // Return a safe, client-friendly version of the profile
                 var response = new
                 {
-                    //FirstName = profile.FirstName,
-                    //LastName = profile.LastName,
-                    //Email = User.Identity?.Name,  // from token (usually email)
-                    //Role = profile.Role.ToString(),
-                    //SubscriptionActive = profile.SubscriptionActive,
-                    //MaxLogins = profile.MaxLogins,
-                    //AffiliationNumber = profile.AffiliationNumber,
-                    //Address = profile.Address,
-                    //CreatedAt = profile.CreatedAt,
-                    //Add more fields here when you extend UserProfile
-                    //ProfileCompleted = profile.ProfileCompleted ?? false
+                    FirstName = profile.FirstName,
+                    LastName = profile.LastName,
+                    Email = User.Identity?.Name,  // from token (usually email)
+                    Role = profile.Role.ToString(),
+                    SubscriptionActive = profile.SubscriptionActive,
+                    MaxLogins = profile.MaxLogins,
+                    AffiliationNumber = profile.AffiliationNumber,
+                    Address = profile.Address,
+                    CreatedAt = profile.CreatedAt,
+                    // Add more fields here when you extend UserProfile
+                    ProfileCompleted = profile.ProfileCompleted ?? false
                 };
 
                 return Ok(response);
@@ -113,37 +113,37 @@ namespace MatchReferee.Controllers
                     profile.LastName = request.LastName.Trim();
 
                 //if (request.Address != null)
-                //    profile.Address = request.Address.Trim();
+                    profile.Address = request.Address.Trim();
 
                 // Referee-specific fields
                 if (profile.Role == UserRole.Referee)
                 {
-                    //if (!string.IsNullOrWhiteSpace(request.AffiliationNumber))
-                    //    profile.AffiliationNumber = request.AffiliationNumber.Trim();
+                    if (!string.IsNullOrWhiteSpace(request.AffiliationNumber))
+                        profile.AffiliationNumber = request.AffiliationNumber.Trim();
 
-                    //if (!string.IsNullOrWhiteSpace(request.RefereeLevel))
-                    //    profile.RefereeLevel = request.RefereeLevel.Trim();
+                    if (!string.IsNullOrWhiteSpace(request.RefereeLevel))
+                        profile.RefereeLevel = request.RefereeLevel.Trim();
 
-                    //if (request.YearsExperience.HasValue)
-                    //    profile.YearsExperience = request.YearsExperience.Value;
+                    if (request.YearsExperience.HasValue)
+                        profile.YearsExperience = request.YearsExperience.Value;
 
-                    //if (request.Regions != null && request.Regions.Count > 0)
-                    //    profile.Regions = request.Regions;
+                    if (request.Regions != null && request.Regions.Count > 0)
+                        profile.Regions = request.Regions;
                 }
 
                 // Multi-role flags
-                //if (request.IsCoach.HasValue)
-                //    profile.IsCoach = request.IsCoach.Value;
+                if (request.IsCoach.HasValue)
+                    profile.IsCoach = request.IsCoach.Value;
 
-                //if (request.IsClubRep.HasValue)
-                //    profile.IsClubRep = request.IsClubRep.Value;
+                if (request.IsClubRep.HasValue)
+                    profile.IsClubRep = request.IsClubRep.Value;
 
-                //if (!string.IsNullOrWhiteSpace(request.TeamAgeGroup))
-                //    profile.TeamAgeGroup = request.TeamAgeGroup.Trim();
+                if (!string.IsNullOrWhiteSpace(request.TeamAgeGroup))
+                    profile.TeamAgeGroup = request.TeamAgeGroup.Trim();
 
-                //// Mark as completed
-                //profile.ProfileCompleted = true;
-                //profile.UpdatedAt = DateTimeOffset.UtcNow;
+                // Mark as completed
+                profile.ProfileCompleted = true;
+                profile.UpdatedAt = DateTimeOffset.UtcNow;
 
                 // Save changes
                 await _firebaseService.CreateOrUpdateUserAsync(profile);

@@ -48,6 +48,7 @@ namespace MatchReferee.Services
             var json = JsonSerializer.Serialize(profile);
             var content = new StringContent(json);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            
 
             await _httpClient.PutAsync(url, content);
         }
