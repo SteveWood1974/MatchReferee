@@ -75,6 +75,14 @@ namespace MatchReferee.Controllers
 
                 Console.WriteLine("REGISTRATION: Saving profile to DB...");
                 await _firebaseService.CreateOrUpdateUserAsync(userProfile);
+
+                Console.WriteLine("ModelState valid: " + ModelState.IsValid);
+                if (!ModelState.IsValid)
+                {
+                    foreach (var err in ModelState.Values.SelectMany(v => v.Errors))
+                        Console.WriteLine("Model error: " + err.ErrorMessage);
+                }
+
                 Console.WriteLine("REGISTRATION: Profile saved OK");
 
                 Console.WriteLine("REGISTRATION: Setting custom claims...");
