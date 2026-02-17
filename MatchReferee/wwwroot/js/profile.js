@@ -1,5 +1,7 @@
 ﻿// wwwroot/js/profile.js
-// Load with: <script type="module" src="/js/profile.js"></script>
+// Profile-specific logic: photo upload + profile load/save + unsaved changes
+
+console.log("[profile.js] Loaded – timestamp:", Date.now());
 
 function debounce(fn, delay = 300) {
     let timer;
@@ -9,148 +11,330 @@ function debounce(fn, delay = 300) {
     };
 }
 
-
-window.initProfilePictureUpload = async function () {
-    // Ensure Firebase is initialized
-    if (!window.firebaseAuth || !window.firebaseApp) {
-        if (typeof window.initFirebase === 'function') {
-            await window.initFirebase();
-        } else {
-            console.error("Firebase init function not found");
-            return;
-        }
+// ────────────────────────────────────────────────
+// Wait for Firebase helper
+// ────────────────────────────────────────────────
+async function ensureFirebaseReady() {
+    if (window.firebaseAuth) {
+        console.log("[profile.js] Firebase already ready");
+        return window.firebaseAuth;
     }
-    const auth = window.firebaseAuth;
-    // Wait for authenticated user
-    const user = await new Promise((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged((u) => {
+
+    console.log("[profile.js] Waiting for Firebase initialization...");
+
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error("Firebase initialization timeout (15s)"));
+        }, 15000);
+
+        const onReady = () => {
+            clearTimeout(timeout);
+            window.removeEventListener('firebaseReady', onReady);
+            window.removeEventListener('firebaseError', onError);
+            console.log("[profile.js] Firebase ready after wait");
+            resolve(window.firebaseAuth);
+        };
+
+        const onError = (e) => {
+            clearTimeout(timeout);
+            window.removeEventListener('firebaseReady', onReady);
+            window.removeEventListener('firebaseError', onError);
+            console.error("[profile.js] Firebase failed:", e.detail);
+            reject(new Error("Firebase initialization failed"));
+        };
+
+        window.addEventListener('firebaseReady', onReady, { once: true });
+        window.addEventListener('firebaseError', onError, { once: true });
+
+        // Kick off if needed
+        window.initFirebase?.().catch(() => { });
+    });
+}
+
+// ────────────────────────────────────────────────
+// Profile Picture Upload
+// ────────────────────────────────────────────────
+window.initProfilePictureUpload = async function () {
+    console.log("[profile.js] initProfilePictureUpload started");
+
+    let auth;
+    try {
+        auth = await ensureFirebaseReady();
+    } catch (err) {
+        console.error("[profile.js] Photo upload unavailable – Firebase issue:", err);
+        const status = document.getElementById("uploadStatus");
+        if (status) status.textContent = "Photo upload unavailable";
+        return;
+    }
+
+    const user = await new Promise(resolve => {
+        const unsubscribe = auth.onAuthStateChanged(u => {
             if (u) {
                 unsubscribe();
+                console.log("[profile.js] Auth user ready:", u.uid);
                 resolve(u);
             }
         });
     });
+
     if (!user) {
-        console.warn("No authenticated user after waiting");
+        console.warn("[profile.js] No authenticated user – skipping photo upload");
         return;
     }
-    console.log("Authenticated user loaded:", user.uid);
-    // Load Storage functions
-    let getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject, getMetadata;
+
+    // Import modules
+    let getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject;
     try {
-        const storageMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js');
-        getStorage = storageMod.getStorage;
-        ref = storageMod.ref;
-        uploadBytesResumable = storageMod.uploadBytesResumable;
-        getDownloadURL = storageMod.getDownloadURL;
-        listAll = storageMod.listAll;
-        deleteObject = storageMod.deleteObject;
-        getMetadata = storageMod.getMetadata; // ← added this
+        const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js');
+        ({ getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject } = mod);
     } catch (err) {
-        console.error("Failed to load Firebase Storage:", err);
+        console.error("[profile.js] Failed to load Storage:", err);
         return;
     }
-    // Load updateProfile
+
     let updateProfile;
     try {
-        const authMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-        updateProfile = authMod.updateProfile;
+        const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        updateProfile = mod.updateProfile;
     } catch (err) {
-        console.error("Failed to load updateProfile:", err);
+        console.error("[profile.js] Failed to load updateProfile:", err);
         return;
     }
-    // DOM elements - declare early
+
+    // DOM
     const fileInput = document.getElementById("profilePictureInput");
-    const previewImg = document.getElementById("imagePreview");
-    const uploadBtn = document.getElementById("uploadProfilePicBtn");
     const statusEl = document.getElementById("uploadStatus");
     const currentPic = document.getElementById("currentProfilePic");
 
-    // Safety check: if critical elements are missing, exit gracefully (fixes null errors)
     if (!fileInput || !statusEl || !currentPic) {
-        console.warn("Required photo elements missing – skipping photo upload init");
+        console.warn("[profile.js] Missing photo elements");
         return;
     }
 
-    // Show current photo if exists
-    if (user.photoURL) {
-        currentPic.src = user.photoURL + '?t=' + Date.now();
-    } else {
-        currentPic.src = "/img/default-user.png";
-    }
+    currentPic.src = user.photoURL ? user.photoURL + '?t=' + Date.now() : "/img/default-user.png";
 
-    // Immediate upload on file select
     fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
-        if (!file) {
-            statusEl.textContent = "";
-            return;
-        }
+        if (!file) return;
 
         if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
-            statusEl.textContent = file.type.startsWith("image/") ? 'File too large (max 2MB)' : 'Please select an image file';
+            statusEl.textContent = file.type.startsWith("image/") ? "File too large (max 2MB)" : "Select an image";
             statusEl.className = "text-danger";
             return;
         }
 
-        statusEl.textContent = "Preparing upload...";
+        statusEl.textContent = "Preparing...";
         statusEl.className = "text-muted";
 
         try {
             const storage = getStorage(window.firebaseApp);
             const ext = file.name.split('.').pop() || 'jpg';
-            const userFolderRef = ref(storage, `profile-pictures/${user.uid}`);
-            // Delete old photo files - check existence first to avoid error
-            const folderSnapshot = await listAll(userFolderRef);
-            for (const itemRef of folderSnapshot.items) {
-                if (itemRef.name.toLowerCase().startsWith("photo.")) {
-                    try {
-                        await deleteObject(itemRef);
-                        console.log(`Deleted old file: ${itemRef.name}`);
-                    } catch (deleteErr) {
-                        if (deleteErr.code !== 'storage/object-not-found') {
-                            console.warn(`Failed to delete ${itemRef.name}:`, deleteErr.message);
-                        }
+            const folderRef = ref(storage, `profile-pictures/${user.uid}`);
+
+            const snapshot = await listAll(folderRef);
+            for (const item of snapshot.items) {
+                if (item.name.toLowerCase().startsWith("photo.")) {
+                    try { await deleteObject(item); } catch (err) {
+                        if (err.code !== 'storage/object-not-found') console.warn("Delete failed:", err);
                     }
                 }
             }
-            // Upload new file
-            const newFileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
-            const uploadTask = uploadBytesResumable(newFileRef, file);
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                    statusEl.textContent = `Uploading... ${progress}%`;
+
+            const fileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
+            const task = uploadBytesResumable(fileRef, file);
+
+            task.on('state_changed',
+                snap => {
+                    const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                    statusEl.textContent = `Uploading... ${pct}%`;
                 },
-                (error) => {
-                    console.error("Upload error:", error);
-                    statusEl.textContent = "Upload failed: " + (error.message || "unknown");
+                err => {
+                    console.error("Upload error:", err);
+                    statusEl.textContent = "Upload failed";
                     statusEl.className = "text-danger";
                 },
                 async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    await updateProfile(user, { photoURL: downloadURL });
-                    currentPic.src = downloadURL + '?t=' + Date.now();
-                    statusEl.textContent = "Profile picture updated successfully!";
+                    const url = await getDownloadURL(task.snapshot.ref);
+                    await updateProfile(user, { photoURL: url });
+                    currentPic.src = url + '?t=' + Date.now();
+                    statusEl.textContent = "Updated!";
                     statusEl.className = "text-success";
-                    // Notify navbar to update avatar
-                    console.log("Upload success - dispatching profilePhotoUpdated event");
-                    console.log("New photoURL:", downloadURL);
-                    window.dispatchEvent(new CustomEvent('profilePhotoUpdated', {
-                        detail: { photoURL: downloadURL }
-                    }));
+                    window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { detail: { photoURL: url } }));
                     fileInput.value = "";
                 }
             );
         } catch (err) {
-            console.error("Upload setup failed:", err);
-            statusEl.textContent = "Error: " + (err.message || "failed to start upload");
+            console.error("Upload failed:", err);
+            statusEl.textContent = "Error";
             statusEl.className = "text-danger";
         }
     });
+
+    console.log("[profile.js] Photo upload ready");
 };
 
-// Call on page load
+// ────────────────────────────────────────────────
+// Profile Page Init (load + save + unsaved changes)
+// ────────────────────────────────────────────────
+async function initProfilePage() {
+    console.log("[profile.js] initProfilePage started");
+
+    const loadingEl = document.getElementById('loading');
+    const profileContent = document.getElementById('profileContent');
+    const errorEl = document.getElementById('error');
+    const form = document.getElementById('profileEditForm');
+
+    if (!loadingEl || !profileContent || !form) {
+        console.error("[profile.js] Missing critical elements");
+        return;
+    }
+
+    let auth;
+    try {
+        auth = await ensureFirebaseReady();
+    } catch (err) {
+        console.error("[profile.js] Firebase unavailable:", err);
+        errorEl.textContent = "Cannot load profile – connection issue. Try refreshing.";
+        errorEl.classList.remove('d-none');
+        loadingEl.innerHTML = '<p class="text-danger">Connection error</p>';
+        return;
+    }
+
+    const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            location.href = '/signin';
+            return;
+        }
+
+        console.log("[profile.js] Authenticated user:", user.uid);
+
+        // Basic user info
+        document.getElementById('displayNameHeader').textContent = user.displayName || 'Not set';
+        document.getElementById('emailHeader').textContent = user.email;
+        document.getElementById('editEmail').value = user.email || '';
+        document.getElementById('verified').textContent = user.emailVerified ? 'Verified' : 'Not Verified';
+        document.getElementById('verified').className = user.emailVerified ? 'badge brand-green' : 'badge bg-warning';
+
+        try {
+            const token = await user.getIdToken();
+            const resp = await fetch('/api/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!resp.ok) throw new Error(await resp.text());
+
+            const profile = await resp.json();
+
+            // Fill form
+            document.getElementById('editFirstName').value = profile.firstName || '';
+            document.getElementById('editLastName').value = profile.lastName || '';
+            document.getElementById('displayNameHeader').textContent = profile.name || user.displayName || 'Not set';
+            document.getElementById('editPhone').value = profile.phoneNumber || '';
+            document.getElementById('editPostcode').value = profile.postcode || '';
+            document.getElementById('editAgeRange').value = profile.ageRange || '';
+            document.getElementById('editGender').value = profile.gender || '';
+            document.getElementById('editBio').value = profile.bio || '';
+
+            document.getElementById('subscriptionStatus').textContent = profile.subscriptionActive ? 'Active' : 'Inactive';
+            document.getElementById('subscriptionStatus').className = profile.subscriptionActive ? 'badge brand-green' : 'badge bg-secondary';
+
+            document.getElementById('joinedDate').textContent = profile.createdAt
+                ? new Date(profile.createdAt).toLocaleDateString('en-GB') : '—';
+
+            if (profile.profilePhotoUrl) {
+                document.getElementById('currentProfilePic').src = profile.profilePhotoUrl;
+            }
+
+            loadingEl.classList.add('d-none');
+            profileContent.classList.remove('d-none');
+
+            // Unsaved changes
+            let formChanged = false;
+            let alertTimeout = null;
+
+            // Show immediately, hide with debounce
+            const updateAlert = () => {
+                if (formChanged) {
+                    window.showUnsavedChangesAlert?.();  // instant show
+                    if (alertTimeout) clearTimeout(alertTimeout);
+                } else {
+                    // Debounce hide
+                    if (alertTimeout) clearTimeout(alertTimeout);
+                    alertTimeout = setTimeout(() => {
+                        window.hideHeaderAlert?.();
+                        alertTimeout = null;
+                    }, 400);
+                }
+            };
+
+            form.querySelectorAll('input, select, textarea').forEach(el => {
+                ['input', 'change'].forEach(evt => {
+                    el.addEventListener(evt, () => {
+                        formChanged = true;
+                        updateAlert();
+                    });
+                });
+            });
+
+            // Optional: also reset on save success (already in your submit handler)
+
+            // Save handler
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = form.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+
+                try {
+                    const token = await auth.currentUser.getIdToken();
+                    const formData = new FormData(form);
+
+                    const resp = await fetch('/api/profile', {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formData
+                    });
+
+                    if (!resp.ok) throw new Error(await resp.text());
+
+                    document.getElementById('success').classList.remove('d-none');
+                    document.getElementById('error').classList.add('d-none');
+                    formChanged = false;
+                    window.hideHeaderAlert?.();
+
+                    setTimeout(() => location.reload(), 1500);
+                } catch (err) {
+                    console.error("[profile.js] Save error:", err);
+                    document.getElementById('error').textContent = err.message || 'Save failed';
+                    document.getElementById('error').classList.remove('d-none');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save me-2"></i> Save Changes';
+                }
+            });
+
+        } catch (err) {
+            console.error("[profile.js] Profile load failed:", err);
+            errorEl.textContent = 'Could not load profile. ' + (err.message || 'Try again.');
+            errorEl.classList.remove('d-none');
+            loadingEl.innerHTML = '<p class="text-danger">Load error</p>';
+        }
+    });
+}
+
+// ────────────────────────────────────────────────
+// Page startup
+// ────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("[profile.js] DOMContentLoaded");
+
+    // No navbar/footer/auth calls here — handled by common.js
+    document.getElementById('signOutBtn')?.addEventListener('click', () => {
+        window.signOut?.();
+    });
+
     window.initProfilePictureUpload?.();
+    initProfilePage();
 });

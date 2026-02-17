@@ -1,11 +1,11 @@
-﻿<!-- Reusable alert - positioned absolutely to avoid flex interference -->
-<div id="globalHeaderAlert" class="d-none position-absolute top-0 start-0 end-0 z-3 border-0 rounded-0 py-1 fw-medium text-center shadow-sm" style="background-color: rgba(255,255,255,0.15);">
+﻿<!-- Reusable alert - absolutely positioned overlay, does NOT push by default -->
+<div id="header-alert" class="d-none position-absolute top-0 start-0 end-0 z-3 border-0 rounded-0 py-1 fw-medium text-center shadow-sm" style="background-color: rgba(255,255,255,0.15);">
     <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap px-3 h-100" id="globalAlertInner">
-        <!-- JS content here -->
+        <!-- Content filled by JS: icon + message + save + ignore -->
     </div>
 </div>
 
-<!-- Main content - add top padding buffer when alert shows -->
+<!-- Main navbar content - we will dynamically add padding-top when alert is visible -->
 <div class="container align-items-center position-relative" id="navbarMainContent">
     <a class="navbar-brand text-white sansation-bold" href="/">
         Match Referee
@@ -13,9 +13,9 @@
 
     <!-- Right side -->
     <div class="d-flex align-items-center ms-auto order-lg-2">
-        <div class="dropdown me-3 d-none" id="profile">
+        <div class="dropdown me-3 d-none" id="navbar-profile">
             <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img id="navbarProfilePic" alt="Profile" class="rounded-circle opacity-0 transition-opacity duration-300"
+                <img id="navbar-profile-pic" alt="Profile" class="rounded-circle opacity-0 transition-opacity duration-300"
                      src="/img/empty-user.png" width="32" height="32"
                      style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;"
                      onload="this.classList.remove('opacity-0'); this.classList.add('opacity-100');"
@@ -28,9 +28,7 @@
                 <li><a class="dropdown-item" href="#" onclick="window.signOut()">Sign Out</a></li>
             </ul>
         </div>
-
-        <a class="nav-link text-white me-3 d-none" href="/signin" id="signin" style="margin-left: 9px;">Sign In</a>
-
+        <a class="nav-link text-white me-3 d-none" href="/signin" id="navbar-signin" style="margin-left: 9px;">Sign In</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>

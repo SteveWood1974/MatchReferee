@@ -105,47 +105,71 @@ console.log("[register-referee.js] Running initial validation");
 validateForm();
 
 // Register function with heavy logging
+// Inside register-referee.js — replace the async function register(...)
+
 async function register(role) {
     console.log("[register] ENTERED - role:", role, "timestamp:", Date.now());
+
     if (!validateForm()) {
         console.warn("[register] Exiting early - validation failed");
         return;
     }
-    console.log("[register] Validation passed - collecting form values");
+
     const firstName = document.getElementById('firstName')?.value.trim() || '';
     const lastName = document.getElementById('lastName')?.value.trim() || '';
     const email = document.getElementById('email')?.value.trim() || '';
     const pwd = document.getElementById('password')?.value || '';
-    const error = document.getElementById('error');
-    console.log("[register] Collected:", { firstName, lastName, email, pwdLength: pwd.length });
+    const errorEl = document.getElementById('error');
+
+    console.log("[register] Collected form data:", { firstName, lastName, email, pwdLength: pwd.length });
+
     try {
-        console.log("[register] Enabling loading state");
+        // ── Step 1: Loading UI ──
+        console.log("[register] Activating loading state on button");
         window.setButtonLoading(document.getElementById('btn'), true);
+        errorEl.classList.add('d-none');
+        errorEl.textContent = '';
+
+        // ── Step 2: Firebase Auth ──
         console.log("[register] Importing Firebase Auth modules...");
         const { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } =
             await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-        console.log("[register] Calling createUserWithEmailAndPassword...");
+
+        console.log("[register] Creating user with email/password...");
         const cred = await createUserWithEmailAndPassword(window.firebaseAuth, email, pwd);
-        console.log("[register] Firebase Auth success - UID:", cred.user.uid);
         const user = cred.user;
-        console.log("[register] Updating displayName...");
+        console.log("[register] Firebase Auth success → UID:", user.uid);
+
+        // ── Step 3: Update display name ──
+        console.log("[register] Updating displayName to:", `${firstName} ${lastName}`.trim());
         await updateProfile(user, {
             displayName: `${firstName} ${lastName}`.trim()
         });
-        console.log("[register] displayName updated");
-        console.log("[register] Reloading user...");
+        console.log("[register] displayName updated successfully");
+
+        // ── Step 4: Reload to ensure fresh user object ──
+        console.log("[register] Reloading user object...");
         await user.reload();
         console.log("[register] User reloaded");
+
+        // ── Step 5: Send verification email ──
         console.log("[register] Sending email verification...");
         await sendEmailVerification(user);
-        console.log("[register] Email verification sent");
-        console.log("[register] Getting ID token...");
-        const token = await user.getIdToken();
-        console.log("[register] ID token obtained (length:", token.length, ")");
-        console.log("[register] Sending to backend /api/auth/register...");
+        console.log("[register] Verification email sent successfully");
+
+        // ── Step 6: Get fresh ID token ──
+        console.log("[register] Retrieving ID token...");
+        const token = await user.getIdToken(/* forceRefresh */ true);  // force refresh for safety
+        console.log("[register] ID token acquired (length:", token.length, ")");
+
+        // ── Step 7: Call backend to create profile/DB record ──
+        console.log("[register] Sending registration data to backend /api/auth/register...");
         const resp = await fetch('/api/auth/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                // If you later add Authorization header, do it here
+            },
             body: JSON.stringify({
                 IdToken: token,
                 FirstName: firstName,
@@ -153,22 +177,46 @@ async function register(role) {
                 Role: role.toLowerCase()
             })
         });
-        console.log("[register] Backend response status:", resp.status);
+
+        console.log("[register] Backend responded with status:", resp.status);
+
         if (!resp.ok) {
             const errText = await resp.text();
-            console.error("[register] Backend failed:", resp.status, errText);
-            throw new Error(errText);
+            console.error("[register] Backend registration FAILED:", resp.status, errText);
+            throw new Error(`Backend error: ${resp.status} - ${errText || 'No details provided'}`);
         }
-        console.log("[register] Backend success");
-        alert('Check your email to verify. Now complete your profile.');
+
+        const backendData = await resp.json().catch(() => ({})); // optional: parse response if JSON
+        console.log("[register] Backend registration SUCCESS:", backendData);
+
+        // ── Only now everything succeeded → show success & redirect ──
+        console.log("[register] All steps completed successfully → preparing redirect");
+        alert('Registration successful! Check your email to verify your account. Now complete your profile.');
+
+        // Optional: short delay so user sees alert / success state
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        console.log("[register] Redirecting to /secure/profile");
         location.href = '/secure/profile';
+
     } catch (e) {
-        console.error("[register] ERROR:", e.code || e.name || 'Unknown', e.message);
-        console.error("[register] Stack:", e.stack);
-        window.showError(e.message || 'Registration failed');
+        console.error("[register] REGISTRATION FAILED:", e.code || e.name || 'Unknown error', e.message);
+        console.error("[register] Full error stack:", e.stack);
+
+        let userMsg = 'Registration failed. Please try again.';
+        if (e.code === 'auth/email-already-in-use') {
+            userMsg = 'This email is already registered. Please sign in or use a different email.';
+        } else if (e.code === 'auth/weak-password') {
+            userMsg = 'Password is too weak. Use at least 6 characters with variety.';
+        } else if (e.message?.includes('Backend error')) {
+            userMsg = e.message; // show backend message if available
+        }
+
+        window.showError?.(userMsg) || (errorEl.textContent = userMsg, errorEl.classList.remove('d-none'));
     } finally {
-        console.log("[register] Cleaning up - disabling loading state");
+        console.log("[register] Cleaning up – resetting button state");
         window.setButtonLoading(document.getElementById('btn'), false);
     }
-    console.log("[register] EXITED");
+
+    console.log("[register] FUNCTION EXITED");
 }

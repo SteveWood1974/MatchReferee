@@ -1,480 +1,251 @@
 ﻿@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
-/* Increase base font size globally */
+/* ====================== CUSTOM PROPERTIES ====================== */
 :root {
-    font-size: 1.1rem; /* 17.6px (default is 16px) */
+    font-size: 1.0rem;
+    /* Brand colours */
+    --brand-grey: #222222;
+    --brand-green: #396107;
+    --brand-yellow: #c9c14a;
+    --brand-blue: #075861;
+    --brand-red: #832e1f;
+    /* Hover / interaction */
+    --hover-lift: translateY(-2px);
+    --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-
-/* Ensure body is a flex container that fills viewport height */
+/* ====================== LAYOUT & TYPOGRAPHY ====================== */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    font-family: "Sansation", sans-serif;
+    font-weight: 400;
 }
 
-/* Main content takes up remaining space */
 main {
     flex: 1 0 auto;
 }
-/* Footer stays at bottom */
+
 footer {
     flex-shrink: 0;
 }
 
-nav {
-    border-bottom: 2px solid #6bb50d;
-}
-
 .sansation-light {
-    font-family: "Sansation", sans-serif;
     font-weight: 300;
-    font-style: normal;
-}
-
-.sansation-regular {
-    font-family: "Sansation", sans-serif;
-    font-weight: 400;
-    font-style: normal;
 }
 
 .sansation-bold {
-    font-family: "Sansation", sans-serif;
     font-weight: 700;
-    font-style: normal;
 }
 
 .sansation-light-italic {
-    font-family: "Sansation", sans-serif;
-    font-weight: 300;
     font-style: italic;
+    font-weight: 300;
 }
 
 .sansation-regular-italic {
-    font-family: "Sansation", sans-serif;
-    font-weight: 400;
     font-style: italic;
+    font-weight: 400;
 }
 
 .sansation-bold-italic {
-    font-family: "Sansation", sans-serif;
-    font-weight: 700;
     font-style: italic;
+    font-weight: 700;
 }
 
-/* Base rule */
+/* ====================== BRAND COLOURS ====================== */
 .brand-grey {
-    background-color: #222222 !important;
-    background-image: linear-gradient(to bottom, #222222 0%, #000000 100%) !important;
+    background: linear-gradient(to bottom, var(--brand-grey), #000) !important;
     color: white !important;
-}
-
-.profile-card-wrapper {
-    border: solid 1px #444444;
-}
-
-.profile-card-header {
-    background-color: #666666;
 }
 
 .brand-green {
-    background-color: #396107;
+    background-color: var(--brand-green) !important;
 }
 
 .brand-yellow {
-    background-color: #c9c14a;
+    background-color: var(--brand-yellow) !important;
 }
 
 .brand-blue {
-    background-color: #075861;
+    background-color: var(--brand-blue) !important;
 }
 
 .brand-red {
-    background-color: #832e1f;
+    background-color: var(--brand-red) !important;
 }
 
-/* Text colours */
+/* Text & border helpers */
+.text-brand-grey {
+    color: var(--brand-grey) !important;
+}
+
 .text-brand-green {
-    color: #396107 !important;
+    color: var(--brand-green) !important;
 }
 
 .text-brand-yellow {
-    color: #c9c14a !important;
+    color: var(--brand-yellow) !important;
 }
 
 .text-brand-blue {
-    color: #075861 !important;
+    color: var(--brand-blue) !important;
 }
 
 .text-brand-red {
-    color: #832e1f !important;
+    color: var(--brand-red) !important;
 }
 
-/* Border colours */
+.border-brand-grey {
+    color: var(--brand-grey) !important;
+}
+
 .border-brand-green {
-    border-color: #396107 !important;
+    border-color: var(--brand-green) !important;
 }
 
 .border-brand-yellow {
-    border-color: #c9c14a !important;
+    border-color: var(--brand-yellow) !important;
 }
 
 .border-brand-blue {
-    border-color: #075861 !important;
+    border-color: var(--brand-blue) !important;
 }
 
 .border-brand-red {
-    border-color: #832e1f !important;
+    border-color: var(--brand-red) !important;
 }
 
-/* Optional: Background + text combinations for buttons or cards */
-.btn-brand-green {
-    background-color: #396107;
-    border-color: #396107;
-    color: white;
-}
-
-    .btn-brand-green:hover {
-        background-color: #2e5306;
-        border-color: #2e5306;
-    }
-
-/* Optional: subtle hover effect on cards using brand colours */
-.card:hover .border-brand-green {
-    border-color: #396107 !important;
-}
-
-.card:hover .border-brand-yellow {
-    border-color: #c9c14a !important;
-}
-
-.card:hover .border-brand-blue {
-    border-color: #075861 !important;
-}
-/* COMPLEMENTARY - PURPLE */
-.brand-purple {
-    background-color: #9c6bc0;
-    color: white !important;
-}
-
-    .brand-purple:hover {
-        background-color: #8a5aab;
-        color: white !important;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-
-/* CONTRASTING - ORANGE */
-.brand-orange {
-    background-color: #ff8c42;
-    color: white !important;
-}
-
-    .brand-orange:hover {
-        background-color: #ff7722;
-        color: white !important;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-
-/* HOVER STATES FOR BRAND BUTTONS */
-.btn.brand-green:hover {
-    background-color: #4a7a0c !important; /* Lighter green */
-    color: white !important;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    transform: translateY(-3px);
-}
-
-.btn.brand-yellow:hover {
-    background-color: #d6d06b !important; /* Lighter yellow */
-    color: #333 !important;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    transform: translateY(-3px);
-}
-
-.btn.brand-blue:hover {
-    background-color: #0a6f7a !important; /* Lighter blue */
-    color: white !important;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    transform: translateY(-3px);
-}
-
-.btn.brand-red:hover {
-    background-color: #a03a2b; /* Lighter red */
-    color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.btn-transition {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
-    transform: translateY(-3px);
-}
-
-/* PALE COLORS - BLACK TEXT */
-.brand-green-pale {
-    background-color: #a8e06a;
-    color: #000 !important;
-    border: 1px solid #60a509;
-}
-
-.brand-yellow-pale {
-    background-color: #f0e68c;
-    color: #000 !important;
-}
-
-.brand-blue-pale {
-    background-color: #87cefa;
-    color: #000 !important;
-}
-
-.brand-red-pale {
-    background-color: #ff9999;
-    color: #000 !important;
-}
-
-
-.brand-purple-pale {
-    background-color: #e0d9f0;
-    color: #000 !important;
-}
-
-.brand-orange-pale {
-    background-color: #ffe0cc;
-    color: #000 !important;
-}
-
-
+/* ====================== BUTTONS & HOVERS ====================== */
 .btn {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
+
+.hover-lift:hover {
+    transform: var(--hover-lift);
+    box-shadow: var(--hover-shadow);
+}
+
+.btn-brand-green {
+    background-color: var(--brand-green);
+    border-color: var(--brand-green);
+    color: white !important;
+}
+    .btn-brand-green:hover {
+        background-color: #558f0c !important;
+        color: white !important;
+    }
 
 .btn-light {
-    background-color: #f8f9fa !important;
+    background-color: #000 !important;
     border: 1px solid #999999;
-    color: #000 !important;
+    color: #fff !important;
 }
 
     .btn-light:hover {
         background-color: #f8f9fa !important;
-        border: 1px solid #999999;
         color: #000 !important;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
 
-.bg-football {
-    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,1)), url('/img/pitch.jpg');
-    background-size: cover;
-    background-position: center center;
-    min-height: 300px;
-    padding: 15px;
+.btn.brand-yellow:hover {
+    background-color: #d6d06b !important;
+    color: #333 !important;
 }
 
-.navbar-brand img {
-    height: 40px;
+.btn.brand-blue:hover {
+    background-color: #0a6f7a !important;
 }
 
-.btn-green {
-    background-color: #396107;
-    border-color: #152303;
+.btn.brand-red:hover {
+    background-color: #a03a2b !important;
 }
 
-    .btn-green:hover {
-        background-color: #57930c;
-        border-color: #152303;
-    }
-
-/* Equal-width buttons */
+/* Equal width buttons */
 .flex-equal {
-    flex: 1 1 0; /* Grow, shrink, equal base */
-    min-width: 180px; /* Minimum width */
-    max-width: 300px; /* Optional: cap width */
+    flex: 1 1 0;
+    min-width: 180px;
+    max-width: 300px;
 }
 
-/* Stack on mobile */
 @media (max-width: 576px) {
     .flex-equal {
         min-width: 100%;
     }
 }
-/* Fixed-size image container with cover */
+
+/* ====================== HERO & BACKGROUND ====================== */
+.hero-section {
+    min-height: 350px;
+    padding: 3rem 0 4rem;
+    display: flex;
+    align-items: center;
+}
+
+.bg-football {
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,1)), url('/img/pitch.jpg') center/cover no-repeat;
+}
+
+/* ====================== CARDS & ROLE CARDS ====================== */
 .bg-cover {
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
     width: 100%;
-    height: 200px; /* Fixed height */
+    height: 200px;
 }
 
-/* Card hover effect */
 .role-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
 }
 
     .role-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 12px 24px rgba(0,0,0,0.15);
     }
-/* HERO SECTION - CONSISTENT & COMPACT */
-.hero-section {
-    min-height: 30px;
-    padding-top: 3rem;
-    padding-bottom: 4rem; /* Extra bottom padding for spacing */
-    display: flex;
-    align-items: center;
+
+.profile-card-header {
+    background-color: var(--brand-grey);
 }
 
-.navbar-loading-spinner {
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* ====================== NAVBAR ====================== */
+nav {
+    border-bottom: 2px solid #6bb50d;
 }
 
-    .navbar-loading-spinner.visible {
-        opacity: 1;
-    }
-
-.hover-lift {
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.navbar-brand img {
+    height: 40px;
 }
 
-    .hover-lift:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
-
-/* Align the dropdown button to the centre when menu is collapsed */
-.dropdown-toggle {
-    text-align: center;
+.navbar-toggler {
+    border: 1px solid white !important;
+    border-radius: 0.25rem;
 }
 
-/* White dropdown arrow for .dropdown-toggle in navbar */
-.navbar .dropdown-toggle::after {
-    border-top-color: white !important; /* top arrow */
-    border-bottom-color: white !important; /* fallback */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
-/* Optional: stronger override if using dark navbar */
-.navbar-dark .dropdown-toggle::after,
-.navbar .text-white.dropdown-toggle::after {
-    border-top-color: white !important;
-}
-
-/* Dark dropdown menu with white text */
+/* Dark dropdown */
 .dropdown-menu {
-    background-color: #111111; /* Dark grey (Bootstrap's bg-dark equivalent) */
-    border: 1px solid #222222; /* Slightly lighter border for definition */
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5); /* deeper shadow for depth */
+    background-color: #111;
+    border: 1px solid #222;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.5);
     border-radius: 0;
 }
 
-/* Dropdown items */
 .dropdown-item {
-    color: #ffffff; /* White text */
+    color: white;
 }
 
-    /* Hover / focus state */
     .dropdown-item:hover,
     .dropdown-item:focus {
-        background-color: #222222; /* Slightly lighter grey on hover */
-        color: #ffffff;
+        background-color: #222;
+        color: white;
     }
 
-    /* Active / selected item (if any) */
-    .dropdown-item.active,
-    .dropdown-item:active {
-        background-color: #0d6efd; /* Bootstrap primary blue, or change to your accent color */
-        color: #ffffff;
-    }
-
-/* Divider line inside dropdown */
-.dropdown-divider {
-    border-top: 1px solid #222222; /* Visible but subtle divider */
-}
-
-/* Optional: Make caret/arrow white too (if not already) */
-.dropdown-toggle::after {
-    border-top-color: #ffffff !important;
-}
-
-/* Customize navbar-toggler: white border and white hamburger icon */
-.navbar-toggler {
-    border: 1px solid white !important; /* white border */
-    border-radius: 0.25rem; /* optional: keep rounded corners */
-}
-
-/* White hamburger icon (the three lines) */
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
-}
-
-/* Optional: hover/focus effect for better UX */
-.navbar-toggler:hover,
-.navbar-toggler:focus {
-    background-color: rgba(255, 255, 255, 0.1); /* subtle white overlay on hover */
-    border-color: white;
-}
-
-/* Optional: make sure it looks good in dark navbar */
-.navbar-dark .navbar-toggler {
-    border-color: white !important;
-}
-
-/* Remove dark/thick border, shadow or outline when clicked/active/focused/expanded */
-.navbar-toggler:focus,
-.navbar-toggler:active,
-.navbar-toggler[aria-expanded="true"],
-.navbar-toggler:focus-visible {
-    border-color: white !important; /* keep your white border */
-    box-shadow: none !important; /* kill Bootstrap focus ring */
-    outline: none !important; /* remove browser outline */
-    background-color: rgba(255, 255, 255, 0.1) !important; /* subtle feedback instead */
-}
-
-/* Optional: even stronger reset if Bootstrap still fights back */
-.navbar-toggler:not(:hover):not(:focus):not(:active) {
-    box-shadow: none !important;
-}
-
-.opacity-0 {
-    opacity: 0;
-}
-
-.opacity-100 {
-    opacity: 1;
-}
-
-.transition-opacity {
-    transition: opacity 0.4s ease-in-out;
-}
-
-/* Fade-in for profile photo */
-#currentProfilePic {
-    transition: opacity 0.4s ease-in-out;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Prevent layout shift and overflow */
-.relative.overflow-hidden {
-    overflow: hidden;
-}
-
-.w-full.h-full.object-cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Smooth fade */
-.transition-opacity {
-    transition: opacity 0.5s ease-in-out;
-}
-
-
+/* ====================== PROFILE PHOTO ====================== */
 .photo-wrapper {
     position: relative;
     width: 160px;
@@ -487,7 +258,7 @@ nav {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border: 4px solid #396107;
+        border: 4px solid var(--brand-green);
         border-radius: 50%;
     }
 
@@ -495,24 +266,32 @@ nav {
         position: absolute;
         bottom: -4px;
         right: -4px;
+        background: var(--brand-green);
+        color: white;
         width: 48px;
         height: 48px;
-        background-color: #396107;
-        color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         border: 4px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-        .photo-wrapper label:hover {
-            transform: scale(1.1);
-        }
+/* ====================== UTILITIES ====================== */
+.opacity-0 {
+    opacity: 0;
+}
 
-#globalHeaderAlert .container-fluid {
-    justify-content: center !important;
+.opacity-100 {
+    opacity: 1;
+}
+
+.transition-opacity {
+    transition: opacity 0.4s ease-in-out;
+}
+
+.hidden {
+    display: none;
 }
