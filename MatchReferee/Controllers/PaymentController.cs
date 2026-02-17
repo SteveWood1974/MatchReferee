@@ -129,7 +129,7 @@ namespace MatchReferee.Controllers
 
                     if (profile.Role == UserRole.Coach && priceId == _cfg["Stripe:PriceId_Coach"])
                     {
-                        profile.SubscriptionActive = true;
+                        //profile.SubscriptionActive = true;
                         await _firebaseService.CreateOrUpdateUserAsync(profile);
 
                         await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(
@@ -138,18 +138,18 @@ namespace MatchReferee.Controllers
                     }
                     else if (profile.Role == UserRole.Club)
                     {
-                        profile.MaxLogins = priceId switch
-                        {
-                            var p when p == _cfg["Stripe:PriceId_1_4"] => 4,
-                            var p when p == _cfg["Stripe:PriceId_5_9"] => 9,
-                            _ => 999
-                        };
-                        profile.SubscriptionActive = true;
-                        await _firebaseService.CreateOrUpdateUserAsync(profile);
+                        //profile.MaxLogins = priceId switch
+                        //{
+                        //    var p when p == _cfg["Stripe:PriceId_1_4"] => 4,
+                        //    var p when p == _cfg["Stripe:PriceId_5_9"] => 9,
+                        //    _ => 999
+                        //};
+                        //profile.SubscriptionActive = true;
+                        //await _firebaseService.CreateOrUpdateUserAsync(profile);
 
-                        await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(
-                            firebaseUser.Uid,
-                            new Dictionary<string, object> { { "status", "active" } });
+                        //await FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(
+                        //    firebaseUser.Uid,
+                        //    new Dictionary<string, object> { { "status", "active" } });
                     }
                 }
                 catch (System.Exception ex)

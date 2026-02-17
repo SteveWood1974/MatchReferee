@@ -68,9 +68,9 @@ namespace MatchReferee.Controllers
                     FirebaseUid = uid,
                     FirstName = request.FirstName,
                     LastName = request.LastName,
-                    Role = role,
-                    SubscriptionActive = false,
-                    MaxLogins = role == UserRole.Club ? 0 : null
+                    Role = role
+                    //SubscriptionActive = false,
+                    //MaxLogins = role == UserRole.Club ? 0 : null
                 };
 
                 Console.WriteLine("REGISTRATION: Saving profile to DB...");
