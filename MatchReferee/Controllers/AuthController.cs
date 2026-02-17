@@ -28,9 +28,8 @@ namespace MatchReferee.Controllers
         {
             Console.WriteLine("REGISTRATION: Request received");
             Console.WriteLine($"  Role: {request.Role}");
-            Console.WriteLine($"  Name: {request.Name}");
-            Console.WriteLine($"  Address: {request.Address}");
-            Console.WriteLine($"  AffiliationNumber: {request.AffiliationNumber}");
+            Console.WriteLine($"  FirstName: {request.FirstName}");
+            Console.WriteLine($"  FirstName: {request.LastName}");
 
             if (!ModelState.IsValid)
             {
@@ -67,9 +66,8 @@ namespace MatchReferee.Controllers
                 var userProfile = new UserProfile
                 {
                     FirebaseUid = uid,
-                    Name = request.Name,
-                    Address = request.Address,
-                    AffiliationNumber = request.AffiliationNumber,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
                     Role = role,
                     SubscriptionActive = false,
                     MaxLogins = role == UserRole.Club ? 0 : null
@@ -115,9 +113,8 @@ namespace MatchReferee.Controllers
         public class RegisterRequest
         {
             public required string IdToken { get; set; }
-            public required string Name { get; set; }
-            public required string Address { get; set; }
-            public string? AffiliationNumber { get; set; }
+            public required string FirstName { get; set; }
+            public required string LastName { get; set; }
             public required string Role { get; set; }
         }
     }

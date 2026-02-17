@@ -7,7 +7,8 @@ namespace MatchReferee.Models
     {
         public required string FirebaseUid { get; set; }
 
-        public string? Name { get; set; }                 // ← matches fullName
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
 
         // ── Added from HTML form ─────────────────────────────────────────────
         public string? PhoneNumber { get; set; }          // was commented out → now active

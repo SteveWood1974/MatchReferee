@@ -52,7 +52,8 @@ namespace MatchReferee.Controllers
                 // Return a safe, client-friendly version of the profile
                 var response = new
                 {
-                    Name = profile.Name,
+                    FirstName = profile.FirstName,
+                    LastName = profile.LastName,
                     Email = User.Identity?.Name,  // from token (usually email)
                     Role = profile.Role.ToString(),
                     SubscriptionActive = profile.SubscriptionActive,
@@ -105,8 +106,11 @@ namespace MatchReferee.Controllers
                 }
 
                 // Update allowed fields (never let client overwrite critical fields like Role, FirebaseUid)
-                if (!string.IsNullOrWhiteSpace(request.Name))
-                    profile.Name = request.Name.Trim();
+                if (!string.IsNullOrWhiteSpace(request.FirstName))
+                    profile.FirstName = request.FirstName.Trim();
+
+                if (!string.IsNullOrWhiteSpace(request.LastName))
+                    profile.LastName = request.LastName.Trim();
 
                 if (request.Address != null)
                     profile.Address = request.Address.Trim();
@@ -159,7 +163,8 @@ namespace MatchReferee.Controllers
 
         public class ProfileUpdateRequest
         {
-            public string? Name { get; set; }
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
             public string? Address { get; set; }
             public string? AffiliationNumber { get; set; }      // only for referees
             public string? RefereeLevel { get; set; }           // e.g. "Level 6"
