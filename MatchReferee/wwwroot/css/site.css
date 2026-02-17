@@ -512,3 +512,7 @@ nav {
         .photo-wrapper label:hover {
             transform: scale(1.1);
         }
+
+#globalHeaderAlert .container-fluid {
+    justify-content: center !important;
+}

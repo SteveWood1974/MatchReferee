@@ -4,6 +4,8 @@
 // Load with: <script src="/js/common.js"></script>
 // =============================================================
 
+console.log("common.js top loaded"); // Debug: confirm file starts executing
+
 let firebaseApp = null;
 let firebaseAuth = null;
 
@@ -240,3 +242,114 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+/**
+ * Reusable Header Alert
+ */
+// Flag to prevent re-entrant / duplicate calls
+let isAlertShowing = false;
+
+window.showHeaderAlert = function (htmlContent, onSaveCallback = null) {
+    const alertEl = document.getElementById('globalHeaderAlert');
+    const mainContentEl = document.getElementById('navbarMainContent');
+    const innerEl = document.getElementById('globalAlertInner');
+
+    if (!alertEl || !innerEl) {
+        console.warn('globalHeaderAlert not found');
+        return;
+    }
+
+    // Skip if already showing the same content (prevents overwrite)
+    if (isAlertShowing && innerEl.innerHTML === htmlContent) {
+        console.log('Alert already showing with same content - skipping');
+        return;
+    }
+
+    isAlertShowing = true;
+
+    innerEl.innerHTML = htmlContent;
+    alertEl.classList.remove('d-none');
+
+    // Re-attach listener safely after content set
+    setTimeout(() => {
+        const saveBtn = innerEl.querySelector('.alert-save-btn');
+        if (saveBtn && typeof onSaveCallback === 'function') {
+            console.log('Attaching click listener NOW');
+
+            // Remove old listeners to avoid accumulation (if any)
+            const clone = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(clone, saveBtn);
+
+            // Attach fresh one
+            clone.addEventListener('click', (e) => {
+                console.log('Save button clicked - executing callback');
+                onSaveCallback(e);
+                // Optional: hide alert after save attempt
+                // hideHeaderAlert();
+            }, { once: true });
+        } else {
+            console.warn('No save button or callback');
+        }
+    }, 50);
+
+    // Padding
+    setTimeout(() => {
+        if (mainContentEl) {
+            const alertHeight = alertEl.offsetHeight || 36;
+            mainContentEl.style.paddingTop = alertHeight + 'px';
+        }
+    }, 0);
+};
+
+window.hideHeaderAlert = function () {
+    const alertEl = document.getElementById('globalHeaderAlert');
+    const mainContentEl = document.getElementById('navbarMainContent');
+
+    if (alertEl) {
+        alertEl.classList.add('d-none');
+        isAlertShowing = false;
+    }
+    if (mainContentEl) mainContentEl.style.paddingTop = '0';
+};
+
+// Your unsaved changes trigger - same as before but now protected
+window.showUnsavedChangesAlert = function () {
+    window.showHeaderAlert(`
+        <div class="d-flex align-items-center w-100 gap-3 flex-nowrap">
+            <!-- Icon -->
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-warning fs-6"></i>
+            </div>
+
+            <!-- Message -->
+            <div class="flex-grow-1 text-truncate">
+                <span class="fw-medium fs-6">Unsaved changes</span>
+            </div>
+
+            <!-- Action button -->
+            <div class="flex-shrink-0">
+                <button type="button" class="btn btn-link text-white p-0 text-decoration-underline alert-save-btn fs-6">
+                    Save Now
+                </button>
+            </div>
+
+            <!-- Small separation + Close button -->
+            <div class="flex-shrink-0 ms-2">  <!-- ← ms-2 adds ~0.5rem margin-start (left in LTR) -->
+                <button type="button" class="btn-close btn-close-white fs-6"
+                        onclick="hideHeaderAlert()" aria-label="Close"></button>
+            </div>
+        </div>
+    `, () => {
+        console.log('Dispatching submit on first click');
+        const form = document.getElementById('profileEditForm');
+        if (form) {
+            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        } else {
+            console.warn('profileEditForm not found');
+        }
+    });
+};
+
+
+console.log("Header alert helpers loaded"); // Debug: MUST appear in console if this code ran
+console.log("window.showUnsavedChangesAlert type:", typeof window.showUnsavedChangesAlert); // Should say "function"

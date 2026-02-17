@@ -1,5 +1,15 @@
 ﻿// wwwroot/js/profile.js
 // Load with: <script type="module" src="/js/profile.js"></script>
+
+function debounce(fn, delay = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
+
 window.initProfilePictureUpload = async function () {
     // Ensure Firebase is initialized
     if (!window.firebaseAuth || !window.firebaseApp) {

@@ -1,20 +1,22 @@
-﻿<div class="container align-items-center">
+﻿<!-- Reusable alert - positioned absolutely to avoid flex interference -->
+<div id="globalHeaderAlert" class="d-none position-absolute top-0 start-0 end-0 z-3 border-0 rounded-0 py-1 fw-medium text-center shadow-sm" style="background-color: rgba(255,255,255,0.15);">
+    <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap px-3 h-100" id="globalAlertInner">
+        <!-- JS content here -->
+    </div>
+</div>
+
+<!-- Main content - add top padding buffer when alert shows -->
+<div class="container align-items-center position-relative" id="navbarMainContent">
     <a class="navbar-brand text-white sansation-bold" href="/">
         Match Referee
     </a>
 
-    <!-- Right side: Account/Sign In + Toggler – always visible -->
+    <!-- Right side -->
     <div class="d-flex align-items-center ms-auto order-lg-2">
-
-        <!-- Account dropdown (always visible) -->
-        <div class="dropdown me-3  d-none" id="profile">
-            <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown"
-               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img id="navbarProfilePic"
-                     alt="Profile"
-                     class="rounded-circle opacity-0 transition-opacity duration-300"
-                     src="/img/empty-user.png"
-                     width="32" height="32"
+        <div class="dropdown me-3 d-none" id="profile">
+            <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img id="navbarProfilePic" alt="Profile" class="rounded-circle opacity-0 transition-opacity duration-300"
+                     src="/img/empty-user.png" width="32" height="32"
                      style="object-fit: cover; border: 1px solid #ddd; margin-left:8px;"
                      onload="this.classList.remove('opacity-0'); this.classList.add('opacity-100');"
                      onerror="this.src='/img/default-user.png'; this.classList.remove('opacity-0'); this.classList.add('opacity-100');">
@@ -27,21 +29,17 @@
             </ul>
         </div>
 
-        <!-- Sign In (shown when not logged in, always visible) -->
         <a class="nav-link text-white me-3 d-none" href="/signin" id="signin" style="margin-left: 9px;">Sign In</a>
 
-        <!-- Hamburger toggler (always visible on mobile) -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 
-    <!-- Collapsible main menu (only Home/About + divider) -->
     <div class="collapse navbar-collapse order-lg-1" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center">
             <li id="home" class="nav-item"><a class="nav-link text-white" href="/">Home</a></li>
             <li id="about" class="nav-item"><a class="nav-link text-white" href="/about">About</a></li>
-            <!-- Vertical divider – only on large screens -->
             <li class="nav-item d-none d-lg-flex align-items-center">
                 <div class="vr bg-white opacity-75 mx-2 my-auto" style="height: 1.25rem;"></div>
             </li>
