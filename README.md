@@ -93,3 +93,58 @@ See you on the touchline.
 Steve & the Match Referee team  
 https://matchreferee.co.uk  
 https://github.com/SteveWood1974/MatchReferee
+
+
+MatchReferee/ (repo root)
+├── .gitattributes
+├── .gitignore
+├── MatchReferee.sln
+│
+└── MatchReferee/                  ← Main ASP.NET Core project
+    ├── Controllers/               ← API endpoints (AuthController, ProfileController, etc.)
+    ├── Models/
+    ├── Services/                  ← Business logic (e.g. FirebaseService)
+    ├── Properties/                ← launchSettings.json, etc.
+    ├── Data/                      ← Placeholder folder (declared in .csproj)
+    ├── wwwroot/                   ← ALL web site files (static frontend)
+    │   ├── css/
+    │   ├── img/                   ← (or images/ in some references)
+    │   ├── js/
+    │   ├── parts/
+    │   ├── public/                ← Marketing & public pages
+    │   │   ├── about.html
+    │   │   ├── register.html
+    │   │   ├── signin.html
+    │   │   ├── referees.html
+    │   │   ├── coaches.html
+    │   │   ├── clubs.html
+    │   │   ├── leagues.html
+    │   │   ├── register-referee.html
+    │   │   ├── register-coach.html
+    │   │   ├── register-club.html
+    │   │   ├── register-league.html
+    │   │   ├── forgot-password.html
+    │   │   ├── reset-password.html
+    │   │   ├── verify-email.html
+    │   │   ├── privacy.html
+    │   │   ├── terms.html
+    │   │   └── favicon.png
+    │   ├── secure/                ← Auth-protected area (static pages)
+    │   │   ├── landing.html
+    │   │   ├── profile.html
+    │   │   ├── referees/
+    │   │   │   └── dashboard-referee.html
+    │   │   ├── coaches/
+    │   │   │   └── dashboard-coach.html
+    │   │   ├── clubs/
+    │   │   │   └── dashboard-club.html
+    │   │   ├── leagues/
+    │   │   └── admin/
+    │   ├── 404.html
+    │   ├── index.html
+    │   └── payment.html           ← (referenced in rewrites)
+    │
+    ├── MatchReferee.csproj
+    ├── Program.cs
+    ├── dotnet-tools.json
+    └── (occasional .gitattributes / .gitignore copies)
