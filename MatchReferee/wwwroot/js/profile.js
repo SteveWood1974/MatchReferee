@@ -12,19 +12,19 @@ function debounce(fn, delay = 300) {
 }
 
 // ────────────────────────────────────────────────
-// Wait for Firebase helper
+// Wait for Firebase readiness from common.js
 // ────────────────────────────────────────────────
-async function ensureFirebaseReady() {
+async function waitForFirebase() {
     if (window.firebaseAuth) {
-        console.log("[profile.js] Firebase already ready");
+        console.log("[profile.js] Firebase already ready (from common.js)");
         return window.firebaseAuth;
     }
 
-    console.log("[profile.js] Waiting for Firebase initialization...");
+    console.log("[profile.js] Waiting for firebaseReady event from common.js...");
 
     return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
-            reject(new Error("Firebase initialization timeout (15s)"));
+            reject(new Error("Firebase readiness timeout (15s)"));
         }, 15000);
 
         const onReady = () => {
@@ -45,9 +45,6 @@ async function ensureFirebaseReady() {
 
         window.addEventListener('firebaseReady', onReady, { once: true });
         window.addEventListener('firebaseError', onError, { once: true });
-
-        // Kick off if needed
-        window.initFirebase?.().catch(() => { });
     });
 }
 
@@ -59,7 +56,7 @@ window.initProfilePictureUpload = async function () {
 
     let auth;
     try {
-        auth = await ensureFirebaseReady();
+        auth = await waitForFirebase();
     } catch (err) {
         console.error("[profile.js] Photo upload unavailable – Firebase issue:", err);
         const status = document.getElementById("uploadStatus");
@@ -116,21 +113,17 @@ window.initProfilePictureUpload = async function () {
     fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
             statusEl.textContent = file.type.startsWith("image/") ? "File too large (max 2MB)" : "Select an image";
             statusEl.className = "text-danger";
             return;
         }
-
         statusEl.textContent = "Preparing...";
         statusEl.className = "text-muted";
-
         try {
             const storage = getStorage(window.firebaseApp);
             const ext = file.name.split('.').pop() || 'jpg';
             const folderRef = ref(storage, `profile-pictures/${user.uid}`);
-
             const snapshot = await listAll(folderRef);
             for (const item of snapshot.items) {
                 if (item.name.toLowerCase().startsWith("photo.")) {
@@ -139,10 +132,8 @@ window.initProfilePictureUpload = async function () {
                     }
                 }
             }
-
             const fileRef = ref(storage, `profile-pictures/${user.uid}/photo.${ext}`);
             const task = uploadBytesResumable(fileRef, file);
-
             task.on('state_changed',
                 snap => {
                     const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
@@ -159,7 +150,6 @@ window.initProfilePictureUpload = async function () {
                     currentPic.src = url + '?t=' + Date.now();
                     statusEl.textContent = "Updated!";
                     statusEl.className = "text-success";
-                    window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { detail: { photoURL: url } }));
                     fileInput.value = "";
                 }
             );
@@ -169,7 +159,6 @@ window.initProfilePictureUpload = async function () {
             statusEl.className = "text-danger";
         }
     });
-
     console.log("[profile.js] Photo upload ready");
 };
 
@@ -178,20 +167,19 @@ window.initProfilePictureUpload = async function () {
 // ────────────────────────────────────────────────
 async function initProfilePage() {
     console.log("[profile.js] initProfilePage started");
-
     const loadingEl = document.getElementById('loading');
     const profileContent = document.getElementById('profileContent');
     const errorEl = document.getElementById('error');
     const form = document.getElementById('profileEditForm');
-
     if (!loadingEl || !profileContent || !form) {
         console.error("[profile.js] Missing critical elements");
         return;
     }
 
+    // Wait for Firebase from common.js
     let auth;
     try {
-        auth = await ensureFirebaseReady();
+        auth = await waitForFirebase();
     } catch (err) {
         console.error("[profile.js] Firebase unavailable:", err);
         errorEl.textContent = "Cannot load profile – connection issue. Try refreshing.";
@@ -201,32 +189,25 @@ async function initProfilePage() {
     }
 
     const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             location.href = '/signin';
             return;
         }
-
         console.log("[profile.js] Authenticated user:", user.uid);
-
         // Basic user info
         document.getElementById('displayNameHeader').textContent = user.displayName || 'Not set';
         document.getElementById('emailHeader').textContent = user.email;
         document.getElementById('editEmail').value = user.email || '';
         document.getElementById('verified').textContent = user.emailVerified ? 'Verified' : 'Not Verified';
         document.getElementById('verified').className = user.emailVerified ? 'badge brand-green' : 'badge bg-warning';
-
         try {
             const token = await user.getIdToken();
             const resp = await fetch('/api/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
             if (!resp.ok) throw new Error(await resp.text());
-
             const profile = await resp.json();
-
             // Fill form
             document.getElementById('editFirstName').value = profile.firstName || '';
             document.getElementById('editLastName').value = profile.lastName || '';
@@ -236,28 +217,22 @@ async function initProfilePage() {
             document.getElementById('editAgeRange').value = profile.ageRange || '';
             document.getElementById('editGender').value = profile.gender || '';
             document.getElementById('editBio').value = profile.bio || '';
-
             document.getElementById('subscriptionStatus').textContent = profile.subscriptionActive ? 'Active' : 'Inactive';
             document.getElementById('subscriptionStatus').className = profile.subscriptionActive ? 'badge brand-green' : 'badge bg-secondary';
-
             document.getElementById('joinedDate').textContent = profile.createdAt
                 ? new Date(profile.createdAt).toLocaleDateString('en-GB') : '—';
-
             if (profile.profilePhotoUrl) {
                 document.getElementById('currentProfilePic').src = profile.profilePhotoUrl;
             }
-
             loadingEl.classList.add('d-none');
             profileContent.classList.remove('d-none');
-
             // Unsaved changes
             let formChanged = false;
             let alertTimeout = null;
-
             // Show immediately, hide with debounce
             const updateAlert = () => {
                 if (formChanged) {
-                    window.showUnsavedChangesAlert?.();  // instant show
+                    window.showUnsavedChangesAlert?.(); // instant show
                     if (alertTimeout) clearTimeout(alertTimeout);
                 } else {
                     // Debounce hide
@@ -268,7 +243,6 @@ async function initProfilePage() {
                     }, 400);
                 }
             };
-
             form.querySelectorAll('input, select, textarea').forEach(el => {
                 ['input', 'change'].forEach(evt => {
                     el.addEventListener(evt, () => {
@@ -277,33 +251,25 @@ async function initProfilePage() {
                     });
                 });
             });
-
-            // Optional: also reset on save success (already in your submit handler)
-
             // Save handler
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = form.querySelector('button[type="submit"]');
                 btn.disabled = true;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
-
                 try {
                     const token = await auth.currentUser.getIdToken();
                     const formData = new FormData(form);
-
                     const resp = await fetch('/api/profile', {
                         method: 'PUT',
                         headers: { 'Authorization': `Bearer ${token}` },
                         body: formData
                     });
-
                     if (!resp.ok) throw new Error(await resp.text());
-
                     document.getElementById('success').classList.remove('d-none');
                     document.getElementById('error').classList.add('d-none');
                     formChanged = false;
                     window.hideHeaderAlert?.();
-
                     setTimeout(() => location.reload(), 1500);
                 } catch (err) {
                     console.error("[profile.js] Save error:", err);
@@ -314,7 +280,6 @@ async function initProfilePage() {
                     btn.innerHTML = '<i class="fas fa-save me-2"></i> Save Changes';
                 }
             });
-
         } catch (err) {
             console.error("[profile.js] Profile load failed:", err);
             errorEl.textContent = 'Could not load profile. ' + (err.message || 'Try again.');
@@ -327,46 +292,36 @@ async function initProfilePage() {
 // ────────────────────────────────────────────────
 // Horizontal tab scroll with arrow indicators
 // ────────────────────────────────────────────────
-// Horizontal scroll with arrow indicators – immediate initial check
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('profileTabsContainer');
     const leftBtn = document.getElementById('scrollLeft');
     const rightBtn = document.getElementById('scrollRight');
-
     if (!container || !leftBtn || !rightBtn) return;
-
     function updateArrows() {
         // Small delay to allow browser to calculate scrollWidth/clientWidth accurately
         setTimeout(() => {
             const scrollLeft = container.scrollLeft;
             const atStart = scrollLeft <= 0;
             const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1; // tolerance for rounding
-
             leftBtn.classList.toggle('d-none', atStart);
             rightBtn.classList.toggle('d-none', atEnd);
         }, 50); // 50ms delay – enough for layout to settle
     }
-
     // Scroll on arrow click
     leftBtn.addEventListener('click', () => {
         container.scrollBy({ left: -120, behavior: 'smooth' });
     });
-
     rightBtn.addEventListener('click', () => {
         container.scrollBy({ left: 120, behavior: 'smooth' });
     });
-
     // Update on scroll
     container.addEventListener('scroll', updateArrows);
-
     // Update on window resize
     window.addEventListener('resize', updateArrows);
-
     // Update after any Bootstrap tab change (tabs may reflow)
     document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]').forEach(tab => {
         tab.addEventListener('shown.bs.tab', updateArrows);
     });
-
     // Force initial check on load + after a tiny delay for render
     updateArrows();
     setTimeout(updateArrows, 300); // second check after Bootstrap finishes
@@ -378,12 +333,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // ────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[profile.js] DOMContentLoaded");
-
     // No navbar/footer/auth calls here — handled by common.js
     document.getElementById('signOutBtn')?.addEventListener('click', () => {
         window.signOut?.();
     });
-
     window.initProfilePictureUpload?.();
     initProfilePage();
 });

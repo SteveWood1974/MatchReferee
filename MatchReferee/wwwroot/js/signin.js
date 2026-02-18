@@ -3,75 +3,108 @@
 
 console.log("[signin.js] Loaded – timestamp:", Date.now());
 
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+// ────────────────────────────────────────────────
+// Password visibility toggle
+// ────────────────────────────────────────────────
+function initPasswordToggle() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
 
-async function waitForFirebaseAuth() {
+    if (togglePassword && passwordInput && eyeIcon) {
+        togglePassword.addEventListener('pointerup', () => {
+            const isPassword = passwordInput.type === 'password';
+
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+
+            togglePassword.setAttribute('aria-label',
+                isPassword ? 'Hide password' : 'Show password'
+            );
+
+            console.log("[signin.js] Password toggle fired – new type:", passwordInput.type);
+        });
+    }
+}
+
+// ────────────────────────────────────────────────
+// Wait for Firebase readiness from common.js
+// ────────────────────────────────────────────────
+async function waitForFirebase() {
     if (window.firebaseAuth) {
-        console.log("[signin.js] Firebase auth already ready");
+        console.log("[signin.js] Firebase already ready (from common.js)");
         return window.firebaseAuth;
     }
 
-    console.log("[signin.js] Waiting for Firebase auth...");
+    console.log("[signin.js] Waiting for firebaseReady event from common.js...");
 
     return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-            reject(new Error("Firebase auth timeout after 15 seconds"));
+        const timeout = setTimeout(() => {
+            reject(new Error("Firebase readiness timeout (15s)"));
         }, 15000);
 
         const onReady = () => {
-            clearTimeout(timeoutId);
+            clearTimeout(timeout);
             window.removeEventListener('firebaseReady', onReady);
             window.removeEventListener('firebaseError', onError);
-            console.log("[signin.js] Firebase auth ready");
+            console.log("[signin.js] Firebase ready after wait");
             resolve(window.firebaseAuth);
         };
 
-        const onError = (event) => {
-            clearTimeout(timeoutId);
+        const onError = (e) => {
+            clearTimeout(timeout);
             window.removeEventListener('firebaseReady', onReady);
             window.removeEventListener('firebaseError', onError);
-            console.error("[signin.js] Firebase init error:", event.detail);
+            console.error("[signin.js] Firebase failed:", e.detail);
             reject(new Error("Firebase initialization failed"));
         };
 
         window.addEventListener('firebaseReady', onReady, { once: true });
         window.addEventListener('firebaseError', onError, { once: true });
-
-        // Trigger initialization if not already started
-        window.initFirebase?.().catch(() => { });
     });
 }
 
+// ────────────────────────────────────────────────
+// Sign In Initialization + Auth Guard
+// ────────────────────────────────────────────────
 async function initializeSignIn() {
+    console.log("[signin.js] initializeSignIn started");
+
+    let auth;
     try {
-        const auth = await waitForFirebaseAuth();
-
-        // Enable sign-in button
-        const signinBtn = document.getElementById('signinBtn');
-        if (signinBtn) {
-            signinBtn.disabled = false;
-            signinBtn.textContent = 'Sign In';
-            signinBtn.addEventListener('click', signin);
-        }
-
-        // Redirect if already signed in
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                console.log("[signin.js] User already signed in – redirecting");
-                location.href = '/secure/landing';
-            }
-        });
-
+        auth = await waitForFirebase();
     } catch (err) {
-        console.error("[signin.js] Initialization failed:", err);
+        console.error("[signin.js] Firebase unavailable:", err);
         const errorEl = document.getElementById('error');
         if (errorEl) {
             errorEl.textContent = "Unable to connect to sign-in service. Please refresh the page.";
             errorEl.classList.remove('d-none');
         }
+        return;
+    }
+
+    // Redirect if already signed in
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log("[signin.js] User already signed in – redirecting to /secure/landing");
+            location.href = '/secure/landing';
+        }
+    });
+
+    // Enable sign-in button
+    const signinBtn = document.getElementById('signinBtn');
+    if (signinBtn) {
+        signinBtn.disabled = false;
+        signinBtn.textContent = 'Sign In';
+        signinBtn.addEventListener('click', signin);
     }
 }
 
+// ────────────────────────────────────────────────
+// Sign In Handler
+// ────────────────────────────────────────────────
 async function signin() {
     const email = document.getElementById('email')?.value.trim();
     const password = document.getElementById('password')?.value;
@@ -88,6 +121,9 @@ async function signin() {
     try {
         if (errorEl) errorEl.classList.add('d-none');
 
+        // Dynamic import inside function (ensures availability)
+        const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+
         const auth = window.firebaseAuth;
         if (!auth) throw new Error("Auth not available");
 
@@ -95,13 +131,11 @@ async function signin() {
         const user = userCredential.user;
 
         let redirectPath = '/secure/profile';
-
         try {
             const token = await user.getIdToken();
             const resp = await fetch('/api/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
             if (resp.ok) {
                 const profile = await resp.json();
                 if (!profile.ProfileCompleted) {
@@ -114,7 +148,6 @@ async function signin() {
 
         console.log("[signin.js] Sign-in successful – redirecting to:", redirectPath);
         location.href = redirectPath;
-
     } catch (e) {
         let message = 'Login failed. Please check your email and password.';
         if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
@@ -128,7 +161,6 @@ async function signin() {
         } else if (e.message) {
             message = e.message;
         }
-
         if (errorEl) {
             errorEl.textContent = message;
             errorEl.classList.remove('d-none');
@@ -139,7 +171,9 @@ async function signin() {
     }
 }
 
+// ────────────────────────────────────────────────
 // Forgot Password / Reset Logic
+// ────────────────────────────────────────────────
 function initResetPassword() {
     const forgotLink = document.getElementById('forgotPassword');
     const resetSection = document.getElementById('resetSection');
@@ -169,13 +203,13 @@ function initResetPassword() {
             errorEl.classList.remove('d-none');
             return;
         }
-
         sendResetBtn.disabled = true;
         sendResetBtn.textContent = 'Sending...';
         errorEl.classList.add('d-none');
         successEl.classList.add('d-none');
-
         try {
+            // Dynamic import for reset function
+            const { sendPasswordResetEmail } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
             await sendPasswordResetEmail(window.firebaseAuth, email);
             successEl.textContent = 'If your email was recognised, we have sent a password reset email. Check your inbox (and spam/junk).';
             successEl.classList.remove('d-none');
@@ -187,7 +221,6 @@ function initResetPassword() {
             else if (e.code === 'auth/invalid-email') message = 'Invalid email address.';
             else if (e.code === 'auth/too-many-requests') message = 'Too many requests – wait a few minutes.';
             else if (e.message) message = e.message;
-
             errorEl.textContent = message;
             errorEl.classList.remove('d-none');
         } finally {
@@ -197,9 +230,9 @@ function initResetPassword() {
     });
 }
 
-// Initialize everything when DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("[signin.js] DOMContentLoaded – initializing");
-    initializeSignIn();
-    initResetPassword();
-});
+// ────────────────────────────────────────────────
+// Page startup – run immediately (common.js handles Firebase readiness)
+// ────────────────────────────────────────────────
+initializeSignIn();
+initResetPassword();
+initPasswordToggle();
