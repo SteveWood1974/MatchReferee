@@ -2,7 +2,7 @@
 
 /* ====================== CUSTOM PROPERTIES ====================== */
 :root {
-    font-size: 1.0rem;
+    font-size: 1.1rem;
     /* Brand colours */
     --brand-grey: #222222;
     --brand-green: #396107;
@@ -53,6 +53,86 @@ footer {
     font-style: italic;
     font-weight: 700;
 }
+
+/* ====================== SCROLLABLE NAV TABS ====================== */
+
+/* Hide scrollbar */
+.nav-tabs-scrollable {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+    .nav-tabs-scrollable::-webkit-scrollbar {
+        display: none;
+    }
+
+/* Tabs – reduced size */
+.nav-tabs {
+    --bs-nav-tabs-link-padding-x: 0.75rem;
+    --bs-nav-tabs-link-padding-y: 0.5rem;
+    --bs-nav-tabs-link-font-size: 0.95rem;
+    border-bottom: none !important;
+}
+
+    .nav-tabs .nav-link {
+        border: none;
+        border-radius: 0.375rem 0.375rem 0 0;
+        padding: 0.5rem 0.75rem;
+        margin-right: 0.25rem;
+        transition: all 0.2s;
+    }
+
+        .nav-tabs .nav-link.active,
+        .nav-tabs .nav-link:hover {
+            background-color: rgba(0,0,0,0.05);
+            color: #000;
+        }
+
+/* Arrows – small, inline, always shown when needed */
+.scroll-arrow {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+    .scroll-arrow:not(.d-none) {
+        opacity: 1;
+    }
+
+    .scroll-arrow:hover {
+        opacity: 1;
+        background-color: rgba(0,0,0,0.05);
+    }
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+    .scroll-arrow {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        font-size: 0.8rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+.nav-tabs-custom.pill-style .nav-link {
+    border-radius: 2rem;
+    background-color: #eeeeee !important;
+    color: var(--brand-grey) !important;
+}
+
+    .nav-tabs-custom.pill-style .nav-link.active {
+        background-color: var(--brand-green) !important;
+        color: white !important;
+    }
 
 /* ====================== BRAND COLOURS ====================== */
 .brand-grey {

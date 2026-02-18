@@ -13,6 +13,9 @@
 
     <!-- Right side -->
     <div class="d-flex align-items-center ms-auto order-lg-2">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="dropdown me-3 d-none" id="navbar-profile">
             <a class="nav-link dropdown-toggle p-0" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <img id="navbar-profile-pic" alt="Profile" class="rounded-circle opacity-0 transition-opacity duration-300"
@@ -23,15 +26,14 @@
                 <span id="userName" class="visually-hidden">Account</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                <li><a class="dropdown-item" href="/secure/landing">Dashboard</a></li>
                 <li><a class="dropdown-item" href="/secure/profile">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" onclick="window.signOut()">Sign Out</a></li>
             </ul>
         </div>
         <a class="nav-link text-white me-3 d-none" href="/signin" id="navbar-signin" style="margin-left: 9px;">Sign In</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+
     </div>
 
     <div class="collapse navbar-collapse order-lg-1" id="navbarNav">

@@ -325,6 +325,55 @@ async function initProfilePage() {
 }
 
 // ────────────────────────────────────────────────
+// Horizontal tab scroll with arrow indicators
+// ────────────────────────────────────────────────
+// Horizontal scroll with arrow indicators – immediate initial check
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('profileTabsContainer');
+    const leftBtn = document.getElementById('scrollLeft');
+    const rightBtn = document.getElementById('scrollRight');
+
+    if (!container || !leftBtn || !rightBtn) return;
+
+    function updateArrows() {
+        // Small delay to allow browser to calculate scrollWidth/clientWidth accurately
+        setTimeout(() => {
+            const scrollLeft = container.scrollLeft;
+            const atStart = scrollLeft <= 0;
+            const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1; // tolerance for rounding
+
+            leftBtn.classList.toggle('d-none', atStart);
+            rightBtn.classList.toggle('d-none', atEnd);
+        }, 50); // 50ms delay – enough for layout to settle
+    }
+
+    // Scroll on arrow click
+    leftBtn.addEventListener('click', () => {
+        container.scrollBy({ left: -120, behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+        container.scrollBy({ left: 120, behavior: 'smooth' });
+    });
+
+    // Update on scroll
+    container.addEventListener('scroll', updateArrows);
+
+    // Update on window resize
+    window.addEventListener('resize', updateArrows);
+
+    // Update after any Bootstrap tab change (tabs may reflow)
+    document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', updateArrows);
+    });
+
+    // Force initial check on load + after a tiny delay for render
+    updateArrows();
+    setTimeout(updateArrows, 300); // second check after Bootstrap finishes
+    setTimeout(updateArrows, 600); // third safety check for slow mobile render
+});
+
+// ────────────────────────────────────────────────
 // Page startup
 // ────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {

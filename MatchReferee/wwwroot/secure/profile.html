@@ -41,21 +41,49 @@
                         <div id="profileContent" class="d-none">
                             <form id="profileEditForm">
 
-                                <!-- Tabs Navigation -->
-                                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="false">Billing</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="referee-tab" data-bs-toggle="tab" data-bs-target="#referee" type="button" role="tab" aria-controls="referee" aria-selected="false">Referee</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="coach-tab" data-bs-toggle="tab" data-bs-target="#coach" type="button" role="tab" aria-controls="coach" aria-selected="false">Coach</button>
-                                    </li>
-                                </ul>
+                                <!-- Horizontal Scrollable Tabs with Side Arrows (no overlay, always shown when overflow) -->
+                                <div class="position-relative mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Left arrow – always shown if overflow left -->
+                                        <button class="btn btn-sm btn-link text-muted px-1 me-1 scroll-arrow d-none" id="scrollLeft" type="button" aria-label="Scroll tabs left">
+                                            <i class="fas fa-chevron-left fa-xs"></i>
+                                        </button>
+
+                                        <!-- Scrollable tabs container – reduced height/padding -->
+                                        <div class="nav-tabs-scrollable overflow-auto flex-grow-1" id="profileTabsContainer" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                            <ul class="nav nav-tabs flex-nowrap mb-0 border-0 nav-tabs-custom pill-style" id="profileTabs" role="tablist" style="padding: 0.4rem 0;">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active py-2 px-3 fs-6" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link py-2 px-3 fs-6" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="false">Billing</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link py-2 px-3 fs-6" id="referee-tab" data-bs-toggle="tab" data-bs-target="#referee" type="button" role="tab" aria-controls="referee" aria-selected="false">Referee</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link py-2 px-3 fs-6" id="coach-tab" data-bs-toggle="tab" data-bs-target="#coach" type="button" role="tab" aria-controls="coach" aria-selected="false">Coach</button>
+                                                </li>
+                                                <!-- Add more tabs here as needed -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Right arrow – always shown if overflow right -->
+                                        <button class="btn btn-sm btn-link text-muted px-1 ms-1 scroll-arrow d-none" id="scrollRight" type="button" aria-label="Scroll tabs right">
+                                            <i class="fas fa-chevron-right fa-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Tab content (unchanged) -->
+                                <div class="tab-content">
+                                    <!-- Your tab panes -->
+                                </div>
+
+                                <!-- Tab content remains unchanged -->
+                                <div class="tab-content">
+                                    <!-- Your tab panes here -->
+                                </div>
 
                                 <!-- Tab Content -->
                                 <div class="tab-content" id="profileTabContent">
