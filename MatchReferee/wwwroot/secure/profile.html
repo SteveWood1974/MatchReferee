@@ -91,10 +91,11 @@
                                     <!-- General Tab -->
                                     <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                                         <!-- Profile Picture + Basic Information -->
-                                        <div class="card shadow-lg mb-4 profile-card-wrapper">
+                                        <div class="card shadow-lg mb-2 profile-card-wrapper">
                                             <div class="card-header profile-card-header text-white text-center py-4">
                                                 <h3 id="displayNameHeader" class="mb-2">Loading...</h3>
-                                                <p class="text-white mb-0 small" id="emailHeader"></p>
+                                                <p class="text-white mb-2 small" id="emailHeader"></p>
+                                                <p class="text-white text-brand-yellow small mb-0">Member since: <span id="joinedDate">—</span></p>
                                             </div>
                                             <div class="card-body p-4 p-md-5">
                                                 <div class="row g-4 align-items-center">
@@ -106,7 +107,7 @@
                                                                  src="/img/empty-user.png"
                                                                  onerror="this.src='/img/default-user.png'">
                                                             <label for="profilePictureInput"
-                                                                   class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+                                                                   class="position-absolute bottom-0 end-0 brand-green text-white rounded-circle d-flex align-items-center justify-content-center shadow"
                                                                    style="width: 48px; height: 48px; cursor: pointer; border: 4px solid white; transform: translate(30%, 30%);">
                                                                 <i class="fas fa-camera"></i>
                                                             </label>
@@ -131,10 +132,49 @@
                                                             </div>
                                                         </div>
                                                         <div class="row g-3">
-                                                            <div class="col-12">
-                                                                <label for="editEmail" class="form-label">Email Address</label>
-                                                                <input type="email" class="form-control" id="editEmail" readonly>
+                                                            <div class="col-12 mb-0">
+                                                                <!-- Label + Info icon row -->
+                                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                    <label for="editEmail" class="form-label mb-0">Email Address</label>
+
+                                                                    <!-- Info icon with tooltip – positioned right after label -->
+                                                                    <button type="button"
+                                                                            class="btn btn-link p-0 text-muted"
+                                                                            data-bs-toggle="tooltip"
+                                                                            data-bs-placement="top"
+                                                                            data-bs-title="This is your login email. It must be verified before you can receive match alerts and bookings."
+                                                                            aria-label="Email field information">
+                                                                        <i class="fas fa-info-circle fs-6"></i>
+                                                                    </button>
+                                                                </div>
+
+                                                                <!-- Input + verification icon -->
+                                                                <div class="position-relative">
+                                                                    <input type="email"
+                                                                           class="form-control pe-5"
+                                                                           id="editEmail"
+                                                                           readonly
+                                                                           value=""
+                                                                           disabled>
+                                                                    <span id="emailVerificationIcon"
+                                                                          class="position-absolute top-50 end-0 translate-middle-y pe-3 d-none">
+                                                                        <i class="fas fa-check-circle"></i>
+                                                                    </span>
+                                                                </div>
                                                             </div>
+                                                            <div class="row g-1">
+                                                                <div class="col-md-12 text-end">
+                                                                    <a id="resendEmail"
+                                                                       class="badge bg-secondary text-white small d-none"
+                                                                       href="#" role="button"
+                                                                       style="cursor: pointer; text-decoration: none;">
+                                                                        <i class="fas fa-envelope" style="margin-right:8px;"></i>
+                                                                        Resend Verification Email
+                                                                    </a>
+                                                                    <p id="verified" class="badge bg-secondary" style="margin-left: 15px;">Checking...</p>
+                                                                </div>
+                                                            </div>
+                                                            
                                                         </div>
                                                     </div>
                                                 </div>
@@ -216,13 +256,13 @@
                                             <div class="card-body">
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
-                                                        <p><strong>Email Verified:</strong><br><span id="verified" class="badge bg-secondary">Checking...</span></p>
+
                                                     </div>
                                                     <div class="col-md-6">
                                                         <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <p><strong>Joined:</strong><br><span id="joinedDate">—</span></p>
+
                                                     </div>
                                                     <div class="col-md-6">
                                                         <p><strong>Primary Role (system):</strong><br><span id="role">—</span></p>

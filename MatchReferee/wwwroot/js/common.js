@@ -225,4 +225,12 @@ function setupNavbarAuth() {
 
     // 4. Await footer load (no dependency)
     await loadFooter();
+
+    // 5. Initialize all Bootstrap tooltips (runs last, catches dynamic content)
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltipTriggerList].map(tooltipTriggerEl =>
+        new bootstrap.Tooltip(tooltipTriggerEl)
+    );
+    console.log("[common.js] Bootstrap tooltips initialized");
+
 })();

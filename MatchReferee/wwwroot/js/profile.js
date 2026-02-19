@@ -1,6 +1,5 @@
 ﻿// wwwroot/js/profile.js
 // Profile-specific logic: photo upload + profile load/save + unsaved changes
-
 console.log("[profile.js] Loaded – timestamp:", Date.now());
 
 function debounce(fn, delay = 300) {
@@ -12,6 +11,20 @@ function debounce(fn, delay = 300) {
 }
 
 // ────────────────────────────────────────────────
+// Lazy-load sendEmailVerification (modular v10+)
+// ────────────────────────────────────────────────
+let sendEmailVerificationFn = null;
+
+async function getSendEmailVerification() {
+    if (!sendEmailVerificationFn) {
+        const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        sendEmailVerificationFn = mod.sendEmailVerification;
+        console.log("[profile.js] sendEmailVerification imported (modular)");
+    }
+    return sendEmailVerificationFn;
+}
+
+// ────────────────────────────────────────────────
 // Wait for Firebase readiness from common.js
 // ────────────────────────────────────────────────
 async function waitForFirebase() {
@@ -19,14 +32,11 @@ async function waitForFirebase() {
         console.log("[profile.js] Firebase already ready (from common.js)");
         return window.firebaseAuth;
     }
-
     console.log("[profile.js] Waiting for firebaseReady event from common.js...");
-
     return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
             reject(new Error("Firebase readiness timeout (15s)"));
         }, 15000);
-
         const onReady = () => {
             clearTimeout(timeout);
             window.removeEventListener('firebaseReady', onReady);
@@ -34,7 +44,6 @@ async function waitForFirebase() {
             console.log("[profile.js] Firebase ready after wait");
             resolve(window.firebaseAuth);
         };
-
         const onError = (e) => {
             clearTimeout(timeout);
             window.removeEventListener('firebaseReady', onReady);
@@ -42,18 +51,16 @@ async function waitForFirebase() {
             console.error("[profile.js] Firebase failed:", e.detail);
             reject(new Error("Firebase initialization failed"));
         };
-
         window.addEventListener('firebaseReady', onReady, { once: true });
         window.addEventListener('firebaseError', onError, { once: true });
     });
 }
 
 // ────────────────────────────────────────────────
-// Profile Picture Upload
+// Profile Picture Upload (unchanged)
 // ────────────────────────────────────────────────
 window.initProfilePictureUpload = async function () {
     console.log("[profile.js] initProfilePictureUpload started");
-
     let auth;
     try {
         auth = await waitForFirebase();
@@ -63,7 +70,6 @@ window.initProfilePictureUpload = async function () {
         if (status) status.textContent = "Photo upload unavailable";
         return;
     }
-
     const user = await new Promise(resolve => {
         const unsubscribe = auth.onAuthStateChanged(u => {
             if (u) {
@@ -73,13 +79,10 @@ window.initProfilePictureUpload = async function () {
             }
         });
     });
-
     if (!user) {
         console.warn("[profile.js] No authenticated user – skipping photo upload");
         return;
     }
-
-    // Import modules
     let getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, deleteObject;
     try {
         const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js');
@@ -88,7 +91,6 @@ window.initProfilePictureUpload = async function () {
         console.error("[profile.js] Failed to load Storage:", err);
         return;
     }
-
     let updateProfile;
     try {
         const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
@@ -97,19 +99,14 @@ window.initProfilePictureUpload = async function () {
         console.error("[profile.js] Failed to load updateProfile:", err);
         return;
     }
-
-    // DOM
     const fileInput = document.getElementById("profilePictureInput");
     const statusEl = document.getElementById("uploadStatus");
     const currentPic = document.getElementById("currentProfilePic");
-
     if (!fileInput || !statusEl || !currentPic) {
         console.warn("[profile.js] Missing photo elements");
         return;
     }
-
     currentPic.src = user.photoURL ? user.photoURL + '?t=' + Date.now() : "/img/default-user.png";
-
     fileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -148,9 +145,13 @@ window.initProfilePictureUpload = async function () {
                     const url = await getDownloadURL(task.snapshot.ref);
                     await updateProfile(user, { photoURL: url });
                     currentPic.src = url + '?t=' + Date.now();
+                    window.dispatchEvent(new CustomEvent('profilePhotoUpdated', {
+                        detail: { photoURL: url }
+                    }));
                     statusEl.textContent = "Updated!";
                     statusEl.className = "text-success";
                     fileInput.value = "";
+                    console.log("[profile.js] Profile photo updated and event dispatched:", url);
                 }
             );
         } catch (err) {
@@ -175,8 +176,6 @@ async function initProfilePage() {
         console.error("[profile.js] Missing critical elements");
         return;
     }
-
-    // Wait for Firebase from common.js
     let auth;
     try {
         auth = await waitForFirebase();
@@ -187,7 +186,6 @@ async function initProfilePage() {
         loadingEl.innerHTML = '<p class="text-danger">Connection error</p>';
         return;
     }
-
     const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
@@ -201,6 +199,86 @@ async function initProfilePage() {
         document.getElementById('editEmail').value = user.email || '';
         document.getElementById('verified').textContent = user.emailVerified ? 'Verified' : 'Not Verified';
         document.getElementById('verified').className = user.emailVerified ? 'badge brand-green' : 'badge bg-warning';
+
+        // ────────────────────────────────────────────────
+        // Email verification resend logic (updated per your request)
+        // ────────────────────────────────────────────────
+        const resendLink = document.getElementById('resendEmail');
+        const verifiedBadge = document.getElementById('verified');
+
+        if (resendLink && verifiedBadge) {
+            // Initial visibility
+            if (user.emailVerified) {
+                resendLink.classList.add('d-none');
+                verifiedBadge.textContent = 'Verified';
+                verifiedBadge.className = 'badge brand-green';
+            } else {
+                resendLink.classList.remove('d-none');
+                verifiedBadge.textContent = 'Not Verified';
+                verifiedBadge.className = 'badge bg-warning';
+            }
+
+            // Click handler
+            resendLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                // Prevent spam clicks (30s cooldown)
+                if (resendLink.dataset.disabled === 'true') return;
+                resendLink.dataset.disabled = 'true';
+                resendLink.style.pointerEvents = 'none';
+
+                try {
+                    const sendEmailVerification = await getSendEmailVerification();
+                    await sendEmailVerification(user);
+
+                    // Update badge only (no separate span/message)
+                    verifiedBadge.textContent = 'Verification Sent';
+                    verifiedBadge.className = 'badge bg-info';
+
+                    // Optional: revert badge after 10 seconds (still not verified until user clicks link)
+                    setTimeout(() => {
+                        if (!user.emailVerified) {
+                            verifiedBadge.textContent = 'Not Verified';
+                            verifiedBadge.className = 'badge bg-warning';
+                        }
+                    }, 10000);
+                } catch (err) {
+                    console.error("[profile.js] Email verification resend failed:", err);
+                    document.getElementById('error').textContent =
+                        err.code === 'auth/too-many-requests'
+                            ? 'Too many requests. Please try again later.'
+                            : 'Failed to resend verification email. ' + (err.message || '');
+                    document.getElementById('error').classList.remove('d-none');
+                } finally {
+                    // Re-enable after cooldown
+                    setTimeout(() => {
+                        resendLink.dataset.disabled = 'false';
+                        resendLink.style.pointerEvents = '';
+                    }, 30000);
+                }
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // Verification icon logic (unchanged)
+        // ────────────────────────────────────────────────
+        const emailInput = document.getElementById('editEmail');
+        const verificationIcon = document.getElementById('emailVerificationIcon');
+        if (emailInput && verificationIcon) {
+            emailInput.value = user.email || '';
+            if (user.emailVerified) {
+                verificationIcon.classList.remove('d-none', 'text-warning');
+                verificationIcon.classList.add('text-brand-green');
+                verificationIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else {
+                verificationIcon.classList.remove('d-none', 'text-brand-green');
+                verificationIcon.classList.add('text-warning');
+                verificationIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            }
+            emailInput.classList.toggle('border-brand-green', user.emailVerified);
+            emailInput.classList.toggle('border-warning', !user.emailVerified);
+        }
+
         try {
             const token = await user.getIdToken();
             const resp = await fetch('/api/profile', {
@@ -208,7 +286,6 @@ async function initProfilePage() {
             });
             if (!resp.ok) throw new Error(await resp.text());
             const profile = await resp.json();
-            // Fill form
             document.getElementById('editFirstName').value = profile.firstName || '';
             document.getElementById('editLastName').value = profile.lastName || '';
             document.getElementById('displayNameHeader').textContent = profile.name || user.displayName || 'Not set';
@@ -226,16 +303,14 @@ async function initProfilePage() {
             }
             loadingEl.classList.add('d-none');
             profileContent.classList.remove('d-none');
-            // Unsaved changes
+
             let formChanged = false;
             let alertTimeout = null;
-            // Show immediately, hide with debounce
             const updateAlert = () => {
                 if (formChanged) {
-                    window.showUnsavedChangesAlert?.(); // instant show
+                    window.showUnsavedChangesAlert?.();
                     if (alertTimeout) clearTimeout(alertTimeout);
                 } else {
-                    // Debounce hide
                     if (alertTimeout) clearTimeout(alertTimeout);
                     alertTimeout = setTimeout(() => {
                         window.hideHeaderAlert?.();
@@ -251,7 +326,7 @@ async function initProfilePage() {
                     });
                 });
             });
-            // Save handler
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = form.querySelector('button[type="submit"]');
@@ -290,7 +365,7 @@ async function initProfilePage() {
 }
 
 // ────────────────────────────────────────────────
-// Horizontal tab scroll with arrow indicators
+// Horizontal tab scroll with arrow indicators (unchanged)
 // ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('profileTabsContainer');
@@ -298,42 +373,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const rightBtn = document.getElementById('scrollRight');
     if (!container || !leftBtn || !rightBtn) return;
     function updateArrows() {
-        // Small delay to allow browser to calculate scrollWidth/clientWidth accurately
         setTimeout(() => {
             const scrollLeft = container.scrollLeft;
             const atStart = scrollLeft <= 0;
-            const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1; // tolerance for rounding
+            const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1;
             leftBtn.classList.toggle('d-none', atStart);
             rightBtn.classList.toggle('d-none', atEnd);
-        }, 50); // 50ms delay – enough for layout to settle
+        }, 50);
     }
-    // Scroll on arrow click
-    leftBtn.addEventListener('click', () => {
-        container.scrollBy({ left: -120, behavior: 'smooth' });
-    });
-    rightBtn.addEventListener('click', () => {
-        container.scrollBy({ left: 120, behavior: 'smooth' });
-    });
-    // Update on scroll
+    leftBtn.addEventListener('click', () => container.scrollBy({ left: -120, behavior: 'smooth' }));
+    rightBtn.addEventListener('click', () => container.scrollBy({ left: 120, behavior: 'smooth' }));
     container.addEventListener('scroll', updateArrows);
-    // Update on window resize
     window.addEventListener('resize', updateArrows);
-    // Update after any Bootstrap tab change (tabs may reflow)
     document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]').forEach(tab => {
         tab.addEventListener('shown.bs.tab', updateArrows);
     });
-    // Force initial check on load + after a tiny delay for render
     updateArrows();
-    setTimeout(updateArrows, 300); // second check after Bootstrap finishes
-    setTimeout(updateArrows, 600); // third safety check for slow mobile render
+    setTimeout(updateArrows, 300);
+    setTimeout(updateArrows, 600);
 });
 
 // ────────────────────────────────────────────────
-// Page startup
+// Page startup (unchanged)
 // ────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[profile.js] DOMContentLoaded");
-    // No navbar/footer/auth calls here — handled by common.js
     document.getElementById('signOutBtn')?.addEventListener('click', () => {
         window.signOut?.();
     });
