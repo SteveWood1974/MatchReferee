@@ -116,6 +116,8 @@ app.UseRewriter(new RewriteOptions()
     .AddRewrite("^coaches/?$", "public/coaches.html", skipRemainingRules: true)
     .AddRewrite("^clubs/?$", "public/clubs.html", skipRemainingRules: true)
     .AddRewrite("^leagues/?$", "public/leagues.html", skipRemainingRules: true)
+    .AddRewrite("^contact/?$", "public/contact.html", skipRemainingRules: true)
+    .AddRewrite("^faq/?$", "public/faq.html", skipRemainingRules: true)
 
     // === Registration flows ===
     .AddRewrite("^register/referee/?$", "public/register-referee.html", skipRemainingRules: true)
@@ -136,10 +138,13 @@ app.UseRewriter(new RewriteOptions()
     // === Secure / authenticated area ===
     .AddRewrite("^secure/landing/?$", "secure/landing.html", skipRemainingRules: true)
     .AddRewrite("^secure/profile/?$", "secure/profile.html", skipRemainingRules: true)
-
     .AddRewrite("^secure/referees/dashboard/?$", "secure/referees/dashboard-referee.html", skipRemainingRules: true)
     .AddRewrite("^secure/coaches/dashboard/?$", "secure/coaches/dashboard-coach.html", skipRemainingRules: true)
     .AddRewrite("^secure/clubs/dashboard/?$", "secure/clubs/dashboard-club.html", skipRemainingRules: true)
+    .AddRewrite("^secure/my-bookings/?$", "secure/my-bookings.html", skipRemainingRules: true)
+    .AddRewrite("^secure/availability/?$", "secure/availability.html", skipRemainingRules: true)
+    .AddRewrite("^secure/post-fixture/?$", "secure/post-fixture.html", skipRemainingRules: true)
+    .AddRewrite("^secure/subscription/?$", "secure/subscription.html", skipRemainingRules: true)
 );
 
 app.UseStatusCodePages(async context =>

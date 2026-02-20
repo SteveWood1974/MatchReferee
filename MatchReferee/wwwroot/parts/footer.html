@@ -1,9 +1,55 @@
-﻿<footer class="bg-dark text-white py-4">
-    <div class="container text-center">
-        <p>© 2026 Match Referee. All rights reserved.</p>
-        <p class="mt-2">
-            Contact: <a href="mailto:support@matchreferee.co.uk" class="text-white text-decoration-underline">support@matchreferee.co.uk</a> |
-            <a href="/privacy" class="text-white text-decoration-underline">Privacy Policy</a>
-        </p>
+﻿<footer class="bg-dark text-white py-5 mt-auto">
+    <div class="container">
+        <div class="row">
+
+            <!-- Column 1: Quick Links -->
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-3">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/" class="text-white text-decoration-none hover-underline">Home</a></li>
+                    <li class="mb-2"><a href="/referees" class="text-white text-decoration-none hover-underline">For Referees</a></li>
+                    <li class="mb-2"><a href="/coaches" class="text-white text-decoration-none hover-underline">For Coaches</a></li>
+                    <li class="mb-2"><a href="/clubs" class="text-white text-decoration-none hover-underline">For Clubs</a></li>
+                    <li class="mb-2"><a href="/contact" class="text-white text-decoration-none hover-underline">Contact Us</a></li>
+                    <li class="mb-2"><a href="/faq" class="text-white text-decoration-none hover-underline">FAQ</a></li>
+                    <li class="mb-2"><a href="/privacy" class="text-white text-decoration-none hover-underline">Privacy Policy</a></li>
+                    <li class="mb-2"><a href="/terms" class="text-white text-decoration-none hover-underline">Terms & Conditions</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: Company Info -->
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-3">MatchReferee</h5>
+                <p class="mb-3">
+                    Connecting grassroots football – referees, coaches and clubs.<br>
+                    Official launch: 1 July 2026.
+                </p>
+                <p class="small mb-0">
+                    &copy; <span id="current-year"></span> [Your Company Name] Ltd.<br>
+                    All rights reserved.
+                </p>
+            </div>
+
+            <!-- Column 3: Social / Extra -->
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Follow Us</h5>
+                <div class="d-flex gap-3 mb-4">
+                    <!-- Replace hrefs with real profiles when available -->
+                    <a href="#" aria-label="Facebook" class="text-white fs-4"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram" class="text-white fs-4"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="X (Twitter)" class="text-white fs-4"><i class="bi bi-twitter-x"></i></a>
+                </div>
+                <p class="small">
+                    Proudly supporting grassroots football across the UK.<br>
+                    Questions? Reach out via our <a href="/contact" class="text-white fw-bold">contact page</a>.
+                </p>
+            </div>
+
+        </div>
     </div>
 </footer>
+
+<!-- Optional: Auto-set current year (add to common.js or inline) -->
+<script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+</script>

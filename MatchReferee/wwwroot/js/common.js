@@ -233,4 +233,4 @@ function setupNavbarAuth() {
     );
     console.log("[common.js] Bootstrap tooltips initialized");
 
-})();
+})();    
