@@ -1,4 +1,4 @@
-﻿@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+﻿@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
 
 /* ====================== CUSTOM PROPERTIES ====================== */
 :root {
@@ -359,6 +359,37 @@ nav {
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
+
+/* ====================== SOCIAL MEDIA ICONS ====================== */
+.social-icon {
+    transition: all 0.3s ease;
+    opacity: 0.9;
+}
+
+    .social-icon:hover,
+    .social-icon:focus {
+        opacity: 1;
+        transform: scale(1.25);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* subtle white glow for visibility */
+    }
+
+    /* Platform-specific brand colours on hover */
+    .social-icon.facebook:hover,
+    .social-icon.facebook:focus {
+        color: #1877F2 !important; /* Official Facebook blue */
+    }
+
+    .social-icon.instagram:hover,
+    .social-icon.instagram:focus {
+        color: #E1306C !important; /* Vibrant Instagram magenta/pink */
+    }
+
+    .social-icon.x-twitter:hover,
+    .social-icon.x-twitter:focus {
+        color: #000000 !important; /* Classic Twitter/X black accent */
+    }
+
+
 /* ====================== UTILITIES ====================== */
 .opacity-0 {
     opacity: 0;
@@ -374,4 +405,140 @@ nav {
 
 .hidden {
     display: none;
+}
+
+/* ============================================================================
+   Country Code Dropdown - Fixed Height, Positioning & Responsiveness
+   ============================================================================ */
+
+/* Input group wrapper – creates new positioning context */
+.input-group:has(#countryCodeDropdown) {
+    flex-wrap: nowrap;
+    position: relative;
+    isolation: isolate; /* New stacking context to prevent clipping */
+}
+
+/* Dropdown trigger button */
+#countryCodeDropdown {
+    min-width: 140px;
+    padding: 0.375rem 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+}
+
+    /* Flag image in button */
+    #countryCodeDropdown img {
+        width: 24px;
+        height: 18px;
+        object-fit: contain;
+        border-radius: 3px;
+    }
+
+    /* Dropdown menu – fixed positioning fixes */
+    #countryCodeDropdown ~ .dropdown-menu {
+        position: absolute !important; /* Override Bootstrap if needed */
+        top: 100% !important;
+        left: 0 !important;
+        right: auto !important;
+        min-width: 320px;
+        max-width: 100%;
+        min-height: 200px; /* Minimum visible height */
+        max-height: 320px;
+        overflow-y: auto;
+        margin-top: 0.25rem;
+        padding: 0.5rem 0;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        z-index: 1051 !important; /* Above other elements */
+        transform: none !important; /* Prevent unwanted transforms */
+    }
+
+/* When shown – reinforce height and positioning */
+.dropdown-menu.show {
+    min-height: 200px !important;
+    display: block !important;
+}
+
+/* Menu items */
+.dropdown-menu .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+    .dropdown-menu .dropdown-item img {
+        width: 40px;
+        height: 30px;
+        object-fit: contain;
+        border-radius: 4px;
+        margin-right: 0.75rem;
+    }
+
+/* Hide scrollbars completely (but keep scrollable content) */
+.dropdown-menu,
+.input-group,
+.nav-tabs-scrollable {
+    overflow-x: hidden !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+    .dropdown-menu::-webkit-scrollbar,
+    .input-group::-webkit-scrollbar,
+    .nav-tabs-scrollable::-webkit-scrollbar {
+        display: none;
+    }
+
+/* Force hidden overflow on tabs (no scrollbar, accept cutoff) */
+.nav-tabs-scrollable {
+    overflow: hidden !important;
+    white-space: nowrap;
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+    #countryCodeDropdown {
+        min-width: 100px;
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+        #countryCodeDropdown img {
+            width: 20px;
+            height: 15px;
+        }
+
+        #countryCodeDropdown ~ .dropdown-menu {
+            min-width: 100% !important;
+            left: 0 !important;
+            right: auto !important;
+            margin-left: 0;
+            transform: translate3d(0, 100%, 0) !important;
+        }
+
+    .input-group > .form-control {
+        font-size: 0.875rem;
+    }
+
+    .row.g-3 > .col-md-6 {
+        max-width: 100%;
+        overflow: hidden;
+    }
+}
+
+/* Hover / active states */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--brand-green-light, #6bb50d);
+    color: white;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--brand-green, #396107);
+    color: white;
 }

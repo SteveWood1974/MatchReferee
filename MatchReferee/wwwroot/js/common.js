@@ -228,9 +228,31 @@ function setupNavbarAuth() {
 
     // 5. Initialize all Bootstrap tooltips (runs last, catches dynamic content)
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    [...tooltipTriggerList].map(tooltipTriggerEl =>
+    const tooltipInstances = [...tooltipTriggerList].map(tooltipTriggerEl =>
         new bootstrap.Tooltip(tooltipTriggerEl)
     );
     console.log("[common.js] Bootstrap tooltips initialized");
 
-})();    
+    // ────────────────────────────────────────────────
+    // NEW: Auto-hide tooltips after 5 seconds (site-wide)
+    // ────────────────────────────────────────────────
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        const tooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+
+        if (!tooltip) return; // skip if no instance (rare)
+
+        let autoHideTimeout;
+
+        tooltipTriggerEl.addEventListener('shown.bs.tooltip', () => {
+            clearTimeout(autoHideTimeout);
+            autoHideTimeout = setTimeout(() => {
+                tooltip.hide();
+            }, 5000); // 5 seconds
+        });
+
+        tooltipTriggerEl.addEventListener('hidden.bs.tooltip', () => {
+            clearTimeout(autoHideTimeout);
+        });
+    });
+    console.log("[common.js] Auto-hide tooltip logic attached");
+})();

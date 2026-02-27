@@ -5,29 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ - MatchReferee</title>
     <meta name="description" content="Frequently asked questions about MatchReferee – the platform for grassroots football referee bookings, availability, fixtures and more.">
-
-    <!-- Favicon (adjust path if needed) -->
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
-
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <!-- Custom site CSS -->
-    <link rel="stylesheet" href="/site.css">
-
-    <!-- Optional Google Fonts (remove/adjust if not used) -->
+    <link rel="stylesheet" href="/css/site.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="d-flex flex-column min-vh-100 bg-light">
 
-    <!-- Navbar placeholder – dynamically loaded by common.js -->
-    <nav id="navbar" class="navbar navbar-expand-lg brand-grey text-white sticky-top d-flex justify-content-center align-items-center" style="min-height: 60px;">
-
-    </nav>
+    <nav id="navbar" class="navbar navbar-expand-lg brand-grey navbar-dark text-white sticky-top d-flex justify-content-center align-items-center" style="min-height: 60px;"></nav>
 
     <main class="flex-grow-1">
         <!-- Hero Section -->
-        <section class="bg-primary text-white py-5 text-center">
+        <section class="brand-green text-white py-5 text-center">
             <div class="container">
                 <h1 class="display-4 fw-bold">Frequently Asked Questions</h1>
                 <p class="lead mt-3">Answers to the most common questions about MatchReferee – before and after our official launch on 1 July 2026.</p>
@@ -38,11 +27,11 @@
         <section class="py-5">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-lg-9 col-xl-8">
-                        <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+                    <div class="col-lg-12 col-xl-12">
+                        <div class="accordion accordion-flush shadow-sm rounded-4 overflow-hidden border-brand-green" id="faqAccordion">
 
                             <!-- Category: General -->
-                            <h2 class="h4 text-center mb-4 mt-3 fw-bold text-primary">General Questions</h2>
+                            <h2 class="h4 text-center mb-4 mt-3 fw-bold text-brand-green">General Questions</h2>
 
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -71,7 +60,7 @@
                             </div>
 
                             <!-- Category: Referees -->
-                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-primary">For Referees</h2>
+                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-brand-green">For Referees</h2>
 
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -100,7 +89,7 @@
                             </div>
 
                             <!-- Category: Coaches & Clubs -->
-                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-primary">For Coaches & Clubs</h2>
+                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-brand-green">For Coaches & Clubs</h2>
 
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -129,7 +118,7 @@
                             </div>
 
                             <!-- Category: Account & Technical -->
-                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-primary">Account, Payments & Technical</h2>
+                            <h2 class="h4 text-center mb-4 mt-5 fw-bold text-brand-green">Account, Payments & Technical</h2>
 
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -157,10 +146,10 @@
                                 </div>
                             </div>
 
-                        </div> <!-- End accordion -->
+                        </div>
 
-                        <div class="alert alert-info mt-5 text-center" role="alert">
-                            <strong>Still have a question?</strong> Check our <a href="/contact" class="alert-link">Contact page</a> or email <a href="mailto:support@matchreferee.co.uk" class="alert-link">support@matchreferee.co.uk</a>.
+                        <div class="alert alert-light border-brand-green mt-5 text-center" role="alert">
+                            <strong>Still have a question?</strong> Check our <a href="/contact" class="text-brand-green">Contact page</a> or email <a href="mailto:support@matchreferee.co.uk" class="text-brand-green">support@matchreferee.co.uk</a>.
                         </div>
                     </div>
                 </div>
@@ -168,16 +157,10 @@
         </section>
     </main>
 
-    <!-- Footer placeholder – dynamically loaded by common.js -->
-    <div id="footer"></div>
+    <footer id="footer"></footer>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- Common JS -->
     <script src="/js/common.js"></script>
-
-    <!-- Page-specific JS (create empty file: wwwroot/js/faq.js) -->
     <script src="/js/faq.js"></script>
 </body>
 </html>
