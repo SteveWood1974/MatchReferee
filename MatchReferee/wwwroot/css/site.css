@@ -406,3 +406,64 @@ nav {
 .hidden {
     display: none;
 }
+
+
+/* Make the prefix selector flexible but with sensible minimum */
+.custom-select-wrapper {
+    flex: 0 0 auto; /* Don't grow/shrink aggressively */
+    min-width: 110px; /* Enough for flag + "+44" on mobile */
+    max-width: 220px; /* Cap so it doesn't eat too much space on wide screens */
+}
+
+/* Ensure the selected prefix button fills its container nicely */
+.selected-prefix {
+    width: 100%; /* Fill the wrapper */
+    justify-content: space-between; /* Better spacing for flag + code + caret */
+    padding-right: 2rem; /* Space for implicit dropdown caret */
+}
+
+    /* Optional: Add a small dropdown arrow (pure CSS) for better UX */
+    .selected-prefix::after {
+        font-size: 0.7rem;
+        margin-left: auto;
+        opacity: 0.7;
+    }
+
+/* Make the dropdown menu span the FULL input-group width for usability */
+.input-group .prefix-list {
+    width: 100% !important; /* Override any parent constraints */
+    left: 0;
+    right: 0; /* Stretch across the entire group */
+    min-width: 300px; /* Minimum comfortable width for names + codes */
+    max-width: 500px; /* Prevent ultra-wide on desktop */
+    margin-top: 2px; /* Small gap below the selector */
+}
+
+/* On very small screens, allow the menu to be narrower but still readable */
+@media (max-width: 576px) {
+    .custom-select-wrapper {
+        min-width: 100px;
+    }
+
+    .input-group .prefix-list {
+        min-width: 250px; /* Still wide enough for country names */
+    }
+}
+
+/* Optional: Make the whole input-group more balanced */
+.input-group > .custom-select-wrapper + .form-control {
+    flex: 1 1 auto; /* Phone number takes remaining space */
+}
+
+.list-group {
+    font-size: 0.7rem;
+}
+.list-group-item {
+    background-color: #222222;
+    color: #ffffff;
+    cursor: pointer;
+}
+.list-group-item:hover {
+    background-color: #444444;
+    color: #ffffff;
+}

@@ -404,3 +404,68 @@ document.addEventListener("DOMContentLoaded", () => {
     window.initProfilePictureUpload?.();
     initProfilePage();
 });
+
+// ────────────────────────────────────────────────
+// Country Code Dropdown List
+// ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    const selectedPrefix = document.querySelector('.selected-prefix');
+    const prefixList = document.querySelector('.prefix-list');
+    const phonePrefixInput = document.getElementById('phonePrefix');
+    const flagBaseUrl = 'https://flagcdn.com/w20/';
+
+    // Toggle dropdown on click
+    selectedPrefix.addEventListener('click', () => {
+        prefixList.style.display = prefixList.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Close dropdown if clicking outside
+    document.addEventListener('click', (event) => {
+        if (!selectedPrefix.contains(event.target) && !prefixList.contains(event.target)) {
+            prefixList.style.display = 'none';
+        }
+    });
+
+    // Fetch and populate data
+    try {
+        const response = await fetch('/data/country-codes.json');
+        let countries = await response.json();
+
+        // Find and move UK to the top
+        const ukIndex = countries.findIndex(c => c.code === 'GB');
+        if (ukIndex !== -1) {
+            const uk = countries.splice(ukIndex, 1)[0];
+            countries.sort((a, b) => a.name.localeCompare(b.name));
+            countries.unshift(uk);
+        } else {
+            countries.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // Populate list
+        countries.forEach(country => {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.innerHTML = `
+                <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}">
+                <span>${country.name} (${country.dial_code})</span>
+            `;
+            li.dataset.prefix = country.dial_code;
+            li.dataset.code = country.code.toLowerCase();
+
+            li.addEventListener('click', () => {
+                // Update selected display
+                selectedPrefix.innerHTML = `
+                    <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}" class="me-2" style="width: 20px; height: 15px;">
+                    <span>${country.dial_code}</span>
+                `;
+                phonePrefixInput.value = country.dial_code;
+                prefixList.style.display = 'none';
+            });
+
+            prefixList.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Error loading country codes:', error);
+        // Fallback: show error or default to UK only
+    }
+});

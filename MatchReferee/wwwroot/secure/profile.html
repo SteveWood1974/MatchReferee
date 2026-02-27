@@ -29,7 +29,7 @@
         <section id="main" class="py-5">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-12 col-lg-10">
+                    <div class="col-12 col-lg-12 col-xl-12">
 
                         <!-- Loading state -->
                         <div id="loading" class="text-center my-5">
@@ -41,15 +41,12 @@
                         <div id="profileContent" class="d-none">
                             <form id="profileEditForm">
 
-                                <!-- Horizontal Scrollable Tabs with Side Arrows (no overlay, always shown when overflow) -->
+                                <!-- Horizontal Scrollable Tabs -->
                                 <div class="position-relative mb-3">
                                     <div class="d-flex align-items-center">
-                                        <!-- Left arrow – always shown if overflow left -->
                                         <button class="btn btn-sm btn-link text-muted px-1 me-1 scroll-arrow d-none" id="scrollLeft" type="button" aria-label="Scroll tabs left">
                                             <i class="fas fa-chevron-left fa-xs"></i>
                                         </button>
-
-                                        <!-- Scrollable tabs container – reduced height/padding -->
                                         <div class="nav-tabs-scrollable overflow-auto flex-grow-1" id="profileTabsContainer" style="scrollbar-width: none; -ms-overflow-style: none;">
                                             <ul class="nav nav-tabs flex-nowrap mb-0 border-0 nav-tabs-custom pill-style" id="profileTabs" role="tablist" style="padding: 0.4rem 0;">
                                                 <li class="nav-item" role="presentation">
@@ -64,25 +61,12 @@
                                                 <li class="nav-item" role="presentation">
                                                     <button class="nav-link py-2 px-3 fs-6" id="coach-tab" data-bs-toggle="tab" data-bs-target="#coach" type="button" role="tab" aria-controls="coach" aria-selected="false">Coach</button>
                                                 </li>
-                                                <!-- Add more tabs here as needed -->
                                             </ul>
                                         </div>
-
-                                        <!-- Right arrow – always shown if overflow right -->
                                         <button class="btn btn-sm btn-link text-muted px-1 ms-1 scroll-arrow d-none" id="scrollRight" type="button" aria-label="Scroll tabs right">
                                             <i class="fas fa-chevron-right fa-xs"></i>
                                         </button>
                                     </div>
-                                </div>
-
-                                <!-- Tab content (unchanged) -->
-                                <div class="tab-content">
-                                    <!-- Your tab panes -->
-                                </div>
-
-                                <!-- Tab content remains unchanged -->
-                                <div class="tab-content">
-                                    <!-- Your tab panes here -->
                                 </div>
 
                                 <!-- Tab Content -->
@@ -90,8 +74,9 @@
 
                                     <!-- General Tab -->
                                     <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+
                                         <!-- Profile Picture + Basic Information -->
-                                        <div class="card shadow-lg mb-2 profile-card-wrapper">
+                                        <div class="card shadow-lg mb-4 profile-card-wrapper">
                                             <div class="card-header profile-card-header text-white text-center py-4">
                                                 <h3 id="displayNameHeader" class="mb-2">Loading...</h3>
                                                 <p class="text-white mb-2 small" id="emailHeader"></p>
@@ -101,7 +86,7 @@
                                                 <div class="row g-4 align-items-center">
                                                     <!-- Photo -->
                                                     <div class="col-lg-4 text-center">
-                                                        <div class="photo-wrapper mb-4 mx-auto">
+                                                        <div class="photo-wrapper mb-4 mx-auto position-relative">
                                                             <img id="currentProfilePic"
                                                                  alt="Profile picture"
                                                                  src="/img/empty-user.png"
@@ -132,49 +117,26 @@
                                                             </div>
                                                         </div>
                                                         <div class="row g-3">
-                                                            <div class="col-12 mb-0">
-                                                                <!-- Label + Info icon row -->
+                                                            <div class="col-12">
                                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                                     <label for="editEmail" class="form-label mb-0">Email Address</label>
-
-                                                                    <!-- Info icon with tooltip – positioned right after label -->
-                                                                    <button type="button"
-                                                                            class="btn btn-link p-0 text-muted"
-                                                                            data-bs-toggle="tooltip"
-                                                                            data-bs-placement="top"
-                                                                            data-bs-title="This is your login email. It must be verified before you can receive match alerts and bookings."
-                                                                            aria-label="Email field information">
+                                                                    <button type="button" class="btn btn-link p-0 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="This is your login email. It must be verified before you can receive match alerts and bookings." aria-label="Email field information">
                                                                         <i class="fas fa-info-circle fs-6"></i>
                                                                     </button>
                                                                 </div>
-
-                                                                <!-- Input + verification icon -->
                                                                 <div class="position-relative">
-                                                                    <input type="email"
-                                                                           class="form-control pe-5"
-                                                                           id="editEmail"
-                                                                           readonly
-                                                                           value=""
-                                                                           disabled>
-                                                                    <span id="emailVerificationIcon"
-                                                                          class="position-absolute top-50 end-0 translate-middle-y pe-3 d-none">
+                                                                    <input type="email" class="form-control pe-5" id="editEmail" readonly disabled>
+                                                                    <span id="emailVerificationIcon" class="position-absolute top-50 end-0 translate-middle-y pe-3 d-none">
                                                                         <i class="fas fa-check-circle"></i>
                                                                     </span>
                                                                 </div>
-                                                            </div>
-                                                            <div class="row g-1">
-                                                                <div class="col-md-12 text-end">
-                                                                    <a id="resendEmail"
-                                                                       class="badge bg-secondary text-white small d-none"
-                                                                       href="#" role="button"
-                                                                       style="cursor: pointer; text-decoration: none;">
-                                                                        <i class="fas fa-envelope" style="margin-right:8px;"></i>
-                                                                        Resend Verification Email
+                                                                <div class="text-end mt-2">
+                                                                    <a id="resendEmail" class="badge bg-secondary text-white small d-none" href="#" role="button" style="cursor: pointer; text-decoration: none;">
+                                                                        <i class="fas fa-envelope me-1"></i> Resend Verification Email
                                                                     </a>
-                                                                    <p id="verified" class="badge bg-secondary" style="margin-left: 15px;">Checking...</p>
+                                                                    <span id="verified" class="badge bg-secondary ms-2">Checking...</span>
                                                                 </div>
                                                             </div>
-                                                            
                                                         </div>
                                                     </div>
                                                 </div>
@@ -190,11 +152,21 @@
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
                                                         <label for="editPhone" class="form-label">Phone Number</label>
-                                                        <input type="tel" class="form-control" id="editPhone" name="phoneNumber">
+                                                        <div class="input-group">
+                                                            <div class="custom-select-wrapper position-relative">
+                                                                <div class="selected-prefix form-select d-flex align-items-center" role="button" tabindex="0">
+                                                                    <img src="https://flagcdn.com/w20/gb.png" alt="United Kingdom" class="me-2" style="width: 20px; height: 15px;">
+                                                                    <span>+44</span>
+                                                                </div>
+                                                                <ul class="prefix-list list-group position-absolute w-100" style="display: none; max-height: 300px; overflow-y: auto; z-index: 1000;"></ul>
+                                                            </div>
+                                                            <input type="tel" class="form-control" id="editPhone" name="phoneNumber" placeholder="Enter phone number">
+                                                        </div>
+                                                        <input type="hidden" id="phonePrefix" name="phonePrefix" value="+44">
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label for="editPostcode" class="form-label">Postcode / Area</label>
-                                                        <input type="text" class="form-control" id="editPostcode" name="postcode">
+                                                        <input type="text" class="form-control" id="editPostcode" name="postcode" placeholder="e.g. SW1A 1AA">
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,13 +228,7 @@
                                             <div class="card-body">
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
-
-                                                    </div>
-                                                    <div class="col-md-6">
                                                         <p><strong>Subscription:</strong><br><span id="subscriptionStatus" class="badge bg-info">Loading...</span></p>
-                                                    </div>
-                                                    <div class="col-md-6">
-
                                                     </div>
                                                     <div class="col-md-6">
                                                         <p><strong>Primary Role (system):</strong><br><span id="role">—</span></p>
@@ -312,7 +278,6 @@
                                 <!-- Feedback -->
                                 <p id="error" class="alert alert-danger mt-3 d-none"></p>
                                 <p id="success" class="alert alert-success mt-3 d-none">Profile updated successfully!</p>
-
                             </form>
                         </div>
                     </div>
