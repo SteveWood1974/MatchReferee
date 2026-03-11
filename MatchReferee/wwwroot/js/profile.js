@@ -1,5 +1,5 @@
 ﻿// wwwroot/js/profile.js
-// Profile-specific logic: photo upload + profile load/save + unsaved changes
+// Profile-specific logic: photo upload + profile load/save + unsaved changes + declarative field validation
 console.log("[profile.js] Loaded – timestamp:", Date.now());
 
 function debounce(fn, delay = 300) {
@@ -14,7 +14,6 @@ function debounce(fn, delay = 300) {
 // Lazy-load sendEmailVerification (modular v10+)
 // ────────────────────────────────────────────────
 let sendEmailVerificationFn = null;
-
 async function getSendEmailVerification() {
     if (!sendEmailVerificationFn) {
         const mod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
@@ -57,7 +56,7 @@ async function waitForFirebase() {
 }
 
 // ────────────────────────────────────────────────
-// Profile Picture Upload (unchanged)
+// Profile Picture Upload
 // ────────────────────────────────────────────────
 window.initProfilePictureUpload = async function () {
     console.log("[profile.js] initProfilePictureUpload started");
@@ -199,15 +198,10 @@ async function initProfilePage() {
         document.getElementById('editEmail').value = user.email || '';
         document.getElementById('verified').textContent = user.emailVerified ? 'Verified' : 'Not Verified';
         document.getElementById('verified').className = user.emailVerified ? 'badge brand-green' : 'badge bg-warning';
-
-        // ────────────────────────────────────────────────
-        // Email verification resend logic (updated per your request)
-        // ────────────────────────────────────────────────
+        // Email verification resend logic
         const resendLink = document.getElementById('resendEmail');
         const verifiedBadge = document.getElementById('verified');
-
         if (resendLink && verifiedBadge) {
-            // Initial visibility
             if (user.emailVerified) {
                 resendLink.classList.add('d-none');
                 verifiedBadge.textContent = 'Verified';
@@ -217,25 +211,16 @@ async function initProfilePage() {
                 verifiedBadge.textContent = 'Not Verified';
                 verifiedBadge.className = 'badge bg-warning';
             }
-
-            // Click handler
             resendLink.addEventListener('click', async (e) => {
                 e.preventDefault();
-
-                // Prevent spam clicks (30s cooldown)
                 if (resendLink.dataset.disabled === 'true') return;
                 resendLink.dataset.disabled = 'true';
                 resendLink.style.pointerEvents = 'none';
-
                 try {
                     const sendEmailVerification = await getSendEmailVerification();
                     await sendEmailVerification(user);
-
-                    // Update badge only (no separate span/message)
                     verifiedBadge.textContent = 'Verification Sent';
                     verifiedBadge.className = 'badge bg-info';
-
-                    // Optional: revert badge after 10 seconds (still not verified until user clicks link)
                     setTimeout(() => {
                         if (!user.emailVerified) {
                             verifiedBadge.textContent = 'Not Verified';
@@ -250,7 +235,6 @@ async function initProfilePage() {
                             : 'Failed to resend verification email. ' + (err.message || '');
                     document.getElementById('error').classList.remove('d-none');
                 } finally {
-                    // Re-enable after cooldown
                     setTimeout(() => {
                         resendLink.dataset.disabled = 'false';
                         resendLink.style.pointerEvents = '';
@@ -258,10 +242,7 @@ async function initProfilePage() {
                 }
             });
         }
-
-        // ────────────────────────────────────────────────
-        // Verification icon logic (unchanged)
-        // ────────────────────────────────────────────────
+        // Verification icon logic
         const emailInput = document.getElementById('editEmail');
         const verificationIcon = document.getElementById('emailVerificationIcon');
         if (emailInput && verificationIcon) {
@@ -278,7 +259,6 @@ async function initProfilePage() {
             emailInput.classList.toggle('border-brand-green', user.emailVerified);
             emailInput.classList.toggle('border-warning', !user.emailVerified);
         }
-
         try {
             const token = await user.getIdToken();
             const resp = await fetch('/api/profile', {
@@ -291,8 +271,8 @@ async function initProfilePage() {
             document.getElementById('displayNameHeader').textContent = profile.name || user.displayName || 'Not set';
             document.getElementById('editPhone').value = profile.phoneNumber || '';
             document.getElementById('editPostcode').value = profile.postcode || '';
-            document.getElementById('editAgeRange').value = profile.ageRange || '';
-            document.getElementById('editGender').value = profile.gender || '';
+            document.getElementById('editDateOfBirth').value = profile.dateOfBirth || '';
+            document.getElementById('editSex').value = profile.sex || '';
             document.getElementById('editBio').value = profile.bio || '';
             document.getElementById('subscriptionStatus').textContent = profile.subscriptionActive ? 'Active' : 'Inactive';
             document.getElementById('subscriptionStatus').className = profile.subscriptionActive ? 'badge brand-green' : 'badge bg-secondary';
@@ -303,7 +283,6 @@ async function initProfilePage() {
             }
             loadingEl.classList.add('d-none');
             profileContent.classList.remove('d-none');
-
             let formChanged = false;
             let alertTimeout = null;
             const updateAlert = () => {
@@ -326,7 +305,6 @@ async function initProfilePage() {
                     });
                 });
             });
-
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = form.querySelector('button[type="submit"]');
@@ -365,107 +343,185 @@ async function initProfilePage() {
 }
 
 // ────────────────────────────────────────────────
-// Horizontal tab scroll with arrow indicators (unchanged)
-// ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('profileTabsContainer');
-    const leftBtn = document.getElementById('scrollLeft');
-    const rightBtn = document.getElementById('scrollRight');
-    if (!container || !leftBtn || !rightBtn) return;
-    function updateArrows() {
-        setTimeout(() => {
-            const scrollLeft = container.scrollLeft;
-            const atStart = scrollLeft <= 0;
-            const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1;
-            leftBtn.classList.toggle('d-none', atStart);
-            rightBtn.classList.toggle('d-none', atEnd);
-        }, 50);
-    }
-    leftBtn.addEventListener('click', () => container.scrollBy({ left: -120, behavior: 'smooth' }));
-    rightBtn.addEventListener('click', () => container.scrollBy({ left: 120, behavior: 'smooth' }));
-    container.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-    document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', updateArrows);
-    });
-    updateArrows();
-    setTimeout(updateArrows, 300);
-    setTimeout(updateArrows, 600);
-});
-
-// ────────────────────────────────────────────────
-// Page startup (unchanged)
+// Single DOMContentLoaded listener – all DOM-dependent code
 // ────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     console.log("[profile.js] DOMContentLoaded");
+
+    // Sign out button
     document.getElementById('signOutBtn')?.addEventListener('click', () => {
         window.signOut?.();
     });
-    window.initProfilePictureUpload?.();
-    initProfilePage();
-});
 
-// ────────────────────────────────────────────────
-// Country Code Dropdown List
-// ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize photo upload
+    window.initProfilePictureUpload?.();
+
+    // Initialize profile loading/saving
+    initProfilePage();
+
+    // Horizontal tab scrolling with arrows
+    const container = document.getElementById('profileTabsContainer');
+    const leftBtn = document.getElementById('scrollLeft');
+    const rightBtn = document.getElementById('scrollRight');
+    if (container && leftBtn && rightBtn) {
+        function updateArrows() {
+            setTimeout(() => {
+                const scrollLeft = container.scrollLeft;
+                const atStart = scrollLeft <= 0;
+                const atEnd = Math.abs(scrollLeft + container.clientWidth - container.scrollWidth) < 1;
+                leftBtn.classList.toggle('d-none', atStart);
+                rightBtn.classList.toggle('d-none', atEnd);
+            }, 50);
+        }
+        leftBtn.addEventListener('click', () => container.scrollBy({ left: -120, behavior: 'smooth' }));
+        rightBtn.addEventListener('click', () => container.scrollBy({ left: 120, behavior: 'smooth' }));
+        container.addEventListener('scroll', updateArrows);
+        window.addEventListener('resize', updateArrows);
+        document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', updateArrows);
+        });
+        updateArrows();
+        setTimeout(updateArrows, 300);
+        setTimeout(updateArrows, 600);
+    }
+
+    // ────────────────────────────────────────────────
+    // Date of Birth picker (Flatpickr)
+    // ────────────────────────────────────────────────
+    const dobInput = document.getElementById('editDateOfBirth');
+    if (dobInput) {
+        flatpickr(dobInput, {
+            dateFormat: "Y-m-d",           // Matches backend-friendly YYYY-MM-DD
+            maxDate: "today",              // Can't pick future dates
+            minDate: "1900-01-01",         // Reasonable lower bound
+            allowInput: false,              // Allow manual typing
+            altInput: true,                // Show nice formatted date to user
+            altFormat: "F j, Y",           // e.g. "March 11, 2000"
+            placeholder: "Select date or type YYYY-MM-DD",
+            disableMobile: false,          // Use native picker on mobile if better
+            onChange: function (selectedDates, dateStr, instance) {
+                // Optional: trigger any form changed logic
+                window.dispatchEvent(new Event('input')); // if you have form change detection
+            }
+        });
+    }
+
+    // ────────────────────────────────────────────────
+    // Declarative field validation system
+    // ────────────────────────────────────────────────
+    const phonePrefixHidden = document.getElementById('phonePrefix');
+
+    const validationRules = [
+        {
+            fieldId: 'editPhone',
+            feedbackId: 'phoneValidationFeedback',
+            validate: (value) => {
+                const prefix = phonePrefixHidden?.value || '';
+                if (prefix !== '+44' || value.trim().length === 0) return true;
+                const cleaned = value.replace(/[\s\-\(\)]/g, '');
+                return !cleaned.startsWith('0');
+            },
+            errorMessage: 'UK mobile numbers should not start with 0 when using +44 (e.g. 079... → 79...)'
+        }
+        // Add more rules here...
+    ];
+
+    const validateField = (inputEl, rule) => {
+        if (!inputEl || !rule) return;
+
+        const value = inputEl.value.trim();
+        const isValid = rule.validate(value);
+
+        inputEl.classList.toggle('is-invalid', !isValid);
+
+        const feedback = document.getElementById(rule.feedbackId);
+        if (feedback) {
+            feedback.textContent = rule.errorMessage;
+            feedback.classList.toggle('d-none', isValid);
+        }
+    };
+
+    // Setup validation for all rules
+    validationRules.forEach(rule => {
+        const input = document.getElementById(rule.fieldId);
+        if (!input) return;
+
+        input.addEventListener('input', () => validateField(input, rule));
+        input.addEventListener('change', () => validateField(input, rule));
+
+        // Phone prefix observer – watch the CONTAINER
+        if (rule.fieldId === 'editPhone') {
+            const prefixContainer = document.querySelector('.selected-prefix');
+            if (prefixContainer) {
+                const observer = new MutationObserver(() => {
+                    console.log("Prefix selection changed – re-validating");
+                    validateField(input, rule);
+                });
+                observer.observe(prefixContainer, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        }
+
+        // Initial validation
+        validateField(input, rule);
+    });
+
+    // Country Code Dropdown List
     const selectedPrefix = document.querySelector('.selected-prefix');
     const prefixList = document.querySelector('.prefix-list');
     const phonePrefixInput = document.getElementById('phonePrefix');
     const flagBaseUrl = 'https://flagcdn.com/w20/';
 
-    // Toggle dropdown on click
-    selectedPrefix.addEventListener('click', () => {
-        prefixList.style.display = prefixList.style.display === 'none' ? 'block' : 'none';
-    });
-
-    // Close dropdown if clicking outside
-    document.addEventListener('click', (event) => {
-        if (!selectedPrefix.contains(event.target) && !prefixList.contains(event.target)) {
-            prefixList.style.display = 'none';
-        }
-    });
-
-    // Fetch and populate data
-    try {
-        const response = await fetch('/data/country-codes.json');
-        let countries = await response.json();
-
-        // Find and move UK to the top
-        const ukIndex = countries.findIndex(c => c.code === 'GB');
-        if (ukIndex !== -1) {
-            const uk = countries.splice(ukIndex, 1)[0];
-            countries.sort((a, b) => a.name.localeCompare(b.name));
-            countries.unshift(uk);
-        } else {
-            countries.sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        // Populate list
-        countries.forEach(country => {
-            const li = document.createElement('li');
-            li.classList.add('list-group-item');
-            li.innerHTML = `
-                <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}">
-                <span>${country.name} (${country.dial_code})</span>
-            `;
-            li.dataset.prefix = country.dial_code;
-            li.dataset.code = country.code.toLowerCase();
-
-            li.addEventListener('click', () => {
-                // Update selected display
-                selectedPrefix.innerHTML = `
-                    <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}" class="me-2" style="width: 20px; height: 15px;">
-                    <span>${country.dial_code}</span>
-                `;
-                phonePrefixInput.value = country.dial_code;
-                prefixList.style.display = 'none';
-            });
-
-            prefixList.appendChild(li);
+    if (selectedPrefix && prefixList && phonePrefixInput) {
+        selectedPrefix.addEventListener('click', () => {
+            prefixList.style.display = prefixList.style.display === 'none' ? 'block' : 'none';
         });
-    } catch (error) {
-        console.error('Error loading country codes:', error);
-        // Fallback: show error or default to UK only
+
+        document.addEventListener('click', (event) => {
+            if (!selectedPrefix.contains(event.target) && !prefixList.contains(event.target)) {
+                prefixList.style.display = 'none';
+            }
+        });
+
+        (async () => {
+            try {
+                const response = await fetch('/data/country-codes.json');
+                let countries = await response.json();
+                const ukIndex = countries.findIndex(c => c.code === 'GB');
+                if (ukIndex !== -1) {
+                    const uk = countries.splice(ukIndex, 1)[0];
+                    countries.sort((a, b) => a.name.localeCompare(b.name));
+                    countries.unshift(uk);
+                } else {
+                    countries.sort((a, b) => a.name.localeCompare(b.name));
+                }
+                countries.forEach(country => {
+                    const li = document.createElement('li');
+                    li.classList.add('list-group-item');
+                    li.innerHTML = `
+                        <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}">
+                        <span>${country.name} (${country.dial_code})</span>
+                    `;
+                    li.dataset.prefix = country.dial_code;
+                    li.dataset.code = country.code.toLowerCase();
+                    li.addEventListener('click', () => {
+                        selectedPrefix.innerHTML = `
+                            <img src="${flagBaseUrl}${country.code.toLowerCase()}.png" alt="${country.name}" class="me-2" style="width: 20px; height: 15px;">
+                            <span>${country.dial_code}</span>
+                        `;
+                        phonePrefixInput.value = country.dial_code;
+                        prefixList.style.display = 'none';
+                    });
+                    prefixList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading country codes:', error);
+            }
+        })();
+    } else {
+        console.warn("[profile.js] Country dropdown elements missing – skipping");
     }
 });
