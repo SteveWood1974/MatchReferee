@@ -386,23 +386,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ────────────────────────────────────────────────
-    // Date of Birth picker (Flatpickr)
+    // Date of Birth picker (Flatpickr) – improved mobile year selection
     // ────────────────────────────────────────────────
     const dobInput = document.getElementById('editDateOfBirth');
     if (dobInput) {
         flatpickr(dobInput, {
-            dateFormat: "Y-m-d",           // Matches backend-friendly YYYY-MM-DD
-            maxDate: "today",              // Can't pick future dates
-            minDate: "1900-01-01",         // Reasonable lower bound
-            allowInput: false,              // Allow manual typing
-            altInput: true,                // Show nice formatted date to user
-            altFormat: "F j, Y",           // e.g. "March 11, 2000"
-            placeholder: "Select date or type YYYY-MM-DD",
-            disableMobile: false,          // Use native picker on mobile if better
-            onChange: function (selectedDates, dateStr, instance) {
-                // Optional: trigger any form changed logic
-                window.dispatchEvent(new Event('input')); // if you have form change detection
-            }
+            dateFormat: "Y-m-d",           // Backend-friendly
+            altInput: true,
+            altFormat: "F j, Y",           // User-friendly: "March 11, 2000"
+            allowInput: true,
+            static: true,                  // Keeps calendar open in a fixed position (better on mobile)
+            disableMobile: false,          // Still allows native fallback if desired
+
+            // Crucial for mobile: show year first + dropdown
+            minDate: "1900-01-01",
+            maxDate: "today",
+            defaultDate: dobInput.value || null, // pre-fill if already set
+
+            // Year range dropdown (makes jumping to 1970s instant)
+            yearRange: 100,                // Shows last 100 years in dropdown
+            showMonths: 1,
+
+            // Mobile-optimized: larger touch targets, year dropdown prominent
+            onOpen: function () {
+                // Optional: force year dropdown to be more visible on mobile
+                if (window.innerWidth < 768) {
+                    const yearInput = this.calendarContainer.querySelector(".flatpickr-year");
+                    if (yearInput) yearInput.focus();
+                }
+            },
+
+            // Optional: add clear button or today button
+            plugins: [
+                // You can add more plugins if needed, e.g. for range or week numbers
+            ]
         });
     }
 
@@ -421,7 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cleaned = value.replace(/[\s\-\(\)]/g, '');
                 return !cleaned.startsWith('0');
             },
-            errorMessage: 'UK mobile numbers should not start with 0 when using +44 (e.g. 079... → 79...)'
+            errorMessage: 'UK numbers do not need the leading 0 when using +44 (e.g. 0161... → 161...)'
         }
         // Add more rules here...
     ];
