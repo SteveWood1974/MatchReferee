@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
         input.addEventListener('input', () => validateField(input, rule));
         input.addEventListener('change', () => validateField(input, rule));
 
-        // Phone prefix observer – watch the CONTAINER
+        // Phone prefix observer – watch the CONTAINER!
         if (rule.fieldId === 'editPhone') {
             const prefixContainer = document.querySelector('.selected-prefix');
             if (prefixContainer) {
